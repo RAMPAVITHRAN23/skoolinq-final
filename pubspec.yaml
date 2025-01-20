@@ -1,0 +1,46 @@
+name: skoolinq_project
+description: "A new Flutter project."
+publish_to: 'none'  # Remove this line if you want to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  provider: ^6.1.2
+  flutter:
+    sdk: flutter
+  http: ^1.0.0
+  google_fonts: ^4.0.4
+  cupertino_icons: ^1.0.8
+  firebase_auth: ^5.3.4
+  firebase_core: ^3.8.1
+  cloud_firestore: ^5.5.1
+  flutter_easyloading: ^3.0.5
+  google_sign_in: ^6.2.2
+  image_picker: ^1.1.2
+  firebase_storage: ^12.3.7
+  image: ^4.5.2
+  rxdart: ^0.28.0
+   # This should be here, under dependencies
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/skoolinq logo1.png
+    - assets/skoolinq logo2.png
+    - assets/google.png
+    - assets/LN.png
+    - assets/avatar_1.jpg
+    - assets/avatar_2.jpg
+    - assets/avatar_3.jpg
+    - assets/avatar_4.jpg
+    - assets/avatar_5.jpg
+    - assets/avatar_6.jpg
+    - assets/google.png
