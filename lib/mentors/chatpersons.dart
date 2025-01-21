@@ -14,7 +14,7 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
-  String filter = "All"; // Filter to toggle between "All" and "Accepted"
+  String filter = "All"; // Filter to toggle between "All", "Accepted", "Requested", and "Pending"
   String searchQuery = ""; // Search input field value
   DBService dbService = DBService();
 
@@ -58,9 +58,16 @@ class _ChatState extends State<Chat> {
                 final name = data["name"]?.toLowerCase() ?? "";
                 final isAccepted =
                     mentor['accepted']?.contains(data["uid"]) ?? false;
+                final isRequested =
+                    mentor['requested']?.contains(data["uid"]) ?? false;
+                final isPending =
+                    !isAccepted && !isRequested; // Pending condition
 
-                // Filter based on "Accepted" or "All"
-                bool passesFilter = filter == "All" || isAccepted;
+                // Filter based on selected filter
+                bool passesFilter = filter == "All" ||
+                    (filter == "Accepted" && isAccepted) ||
+                    (filter == "Requested" && isRequested) ||
+                    (filter == "Pending" && isPending);
 
                 // Search logic
                 return passesFilter && name.contains(searchQuery.toLowerCase());
@@ -74,7 +81,7 @@ class _ChatState extends State<Chat> {
                     child: TextField(
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search, color: Colors.white),
-                        hintText: 'Search Accepted Members',
+                        hintText: 'Search Members',
                         hintStyle: TextStyle(
                           color: Colors.white.withOpacity(0.6),
                         ),
@@ -150,7 +157,7 @@ class _ChatState extends State<Chat> {
                                     ? "Requested"
                                     : isAccepted
                                     ? "Accepted"
-                                    : "Not Connected",
+                                    : "Pending",
                                 style: TextStyle(
                                   color: isRequested
                                       ? Colors.orange
@@ -234,6 +241,30 @@ class _ChatState extends State<Chat> {
               onTap: () {
                 setState(() {
                   filter = "Accepted";
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text(
+                "Requested Members",
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                setState(() {
+                  filter = "Requested";
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text(
+                "Pending Members",
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                setState(() {
+                  filter = "Pending";
                 });
                 Navigator.pop(context);
               },
