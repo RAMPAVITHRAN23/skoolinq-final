@@ -184,6 +184,7 @@ class _ChatPageState extends State<ChatPage> {
                                   MaterialPageRoute(
                                     builder: (context) => ChatUI(
                                         name: data["name"],
+                                        uid: data["uid"],
                                         groupName: combinedString),
                                   ),
                                 );

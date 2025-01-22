@@ -1,125 +1,198 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:skoolinq_project/Services/dbservice.dart';
 
 class CreatePost extends StatefulWidget {
+  const CreatePost({super.key});
+
   @override
-  _CreatePostState createState() => _CreatePostState();
+  State<CreatePost> createState() => _CreatePostState();
 }
 
 class _CreatePostState extends State<CreatePost> {
-  TextEditingController captionController = TextEditingController();
-  File? selectedImage;
+  late double divHeight, divWidth;
+  TextEditingController post = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  File? pickedImage;
 
-  // Function to pick an image from the gallery
   Future<void> pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    final ImagePicker picker = ImagePicker();
+    XFile? selectedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (selectedFile != null) {
       setState(() {
-        selectedImage = File(pickedFile.path);
+        pickedImage = File(selectedFile.path);
       });
+    } else {
+      print('No image selected.');
     }
   }
 
-  // Function to upload the post to Firestore
-  Future<void> uploadPost() async {
-    if (selectedImage == null || captionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please add an image and a caption!')),
-      );
-      return;
-    }
-
-    final user = FirebaseAuth.instance.currentUser;
-
-    // Upload post to Firestore
-    await FirebaseFirestore.instance.collection('posts').add({
-      'imagePath': selectedImage!.path,
-      'caption': captionController.text,
-      'user': user?.displayName ?? 'Anonymous',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-
-    // Pop the screen after post is uploaded
-    Navigator.pop(context);
+  Future<File> resizeImage(File imageFile) async {
+    img.Image? image = img.decodeImage(await imageFile.readAsBytes());
+    img.Image resizedImage =
+    img.copyResize(image!, width: 600);
+    return File(imageFile.path)
+      ..writeAsBytesSync(img.encodeJpg(resizedImage));
   }
+
+  Future<String> encodeImageToBase64(File imageFile) async {
+    File resizedImage = await resizeImage(imageFile);
+    final Uint8List imageBytes = await resizedImage.readAsBytes();
+    return base64Encode(imageBytes);
+  }
+
+  DBService dbService = DBService();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Create Post'),
-        backgroundColor: Colors.blueAccent, // Blue background for app bar
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white), // Back arrow icon
-          onPressed: () {
-            Navigator.pop(context); // Go back when the back arrow is pressed
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: pickImage, // Allow user to pick an image from the gallery
-              child: Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.blue[50], // Light blue background for image picker area
-                  borderRadius: BorderRadius.circular(10), // Rounded corners
-                  border: Border.all(color: Colors.blueAccent, width: 2), // Blue border around the image picker
+    divHeight = MediaQuery.of(context).size.height;
+    divWidth = MediaQuery.of(context).size.width;
+    final user = Provider.of<User?>(context);
+
+    return StreamBuilder(
+        stream: dbService.checkDocument(user!.uid),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Scaffold(
+              body: Center(child: CircularProgressIndicator(color: Colors.blue)),
+            );
+          }
+
+          DocumentSnapshot documentSnapshot = snapshot.data;
+          Map<String, dynamic> data =
+          documentSnapshot.data() as Map<String, dynamic>;
+
+          return Scaffold(
+            backgroundColor: const Color(0xFF0A2540),
+            body: Form(
+              key: formKey,
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: pickImage,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 2.0, color: Colors.blueAccent),
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue[100],
+                        ),
+                        height: divHeight * 0.4,
+                        width: divWidth,
+                        child: pickedImage != null
+                            ? ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(pickedImage!, fit: BoxFit.cover),
+                        )
+                            : Center(
+                          child: Text(
+                            "Tap here to pick an image from gallery",
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: divHeight * 0.02),
+                    TextFormField(
+                      controller: post,
+                      decoration: InputDecoration(
+                        labelText: 'Post Content',
+                        labelStyle: const TextStyle(color: Colors.blueAccent),
+                        fillColor: Colors.blue[50],
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.blueAccent),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.blue, width: 2),
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.black),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Post Content cannot be empty';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: divHeight * 0.02),
+                    ElevatedButton(
+                      onPressed: () async {
+                        EasyLoading.show(status: "Posting");
+                        if (pickedImage != null &&
+                            formKey.currentState!.validate()) {
+                          EasyLoading.show(status: "Posting");
+                          String base64Image =
+                          await encodeImageToBase64(pickedImage!);
+
+                          try {
+                            await FirebaseFirestore.instance.collection("posts").add({
+                              "post": post.text.toString(),
+                              "uid": user!.uid,
+                              "postedBy": data["name"],
+                              "avatar": data["avatar"],
+                              "postImg": base64Image,
+                              "like": 0,
+                              "timestamp": FieldValue.serverTimestamp(),
+                            });
+                            EasyLoading.dismiss();
+                            post.clear();
+                            setState(() {
+                              pickedImage = null;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                duration: Duration(seconds: 3),
+                                backgroundColor: Colors.green,
+                                content: Center(
+                                  child: Text(
+                                    "Post Added Successfully",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 17),
+                                  ),
+                                ),
+                              ),
+                            );
+                          } catch (e) {
+                            EasyLoading.showError("Compress the Image Please");
+                          }
+                        } else {
+                          EasyLoading.showError("Please check the fields");
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                      ),
+                      child: Text(
+                        "Add Post",
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
-                child: selectedImage != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(selectedImage!, fit: BoxFit.cover),
-                )
-                    : Icon(Icons.add_a_photo, color: Colors.blueAccent, size: 50),
               ),
             ),
-            SizedBox(height: 20),
-            TextField(
-              controller: captionController,
-              decoration: InputDecoration(
-                labelText: 'Caption',
-                labelStyle: TextStyle(color: Colors.blueAccent), // Blue label text
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blueAccent), // Blue border for the text field
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blueAccent, width: 2), // Blue border when focused
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: uploadPost, // Upload the post to Firestore
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent, // Blue button color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Rounded corners for the button
-                ),
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-              ),
-              child: Text(
-                'Post',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white, // White text for contrast
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 }

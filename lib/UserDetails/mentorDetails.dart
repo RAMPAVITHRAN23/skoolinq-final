@@ -22,10 +22,11 @@ class _MentorDetailsState extends State<MentorDetails> {
 
   final List<String> boardList = ['CBSE', 'ICSE', 'State Board'];
   final List<String> mentorTypeList = [
-    'Alumini',
-    'Tutors',
-    'Professional Members',
-    'Entrance Exam Trainee'
+    'Student Mentor',
+    'Working Mentor (In a job/Professional)',
+    'Tutor (Individual subject teachers / tuition)',
+    'Coaches (Coaching institutes or individual coaches for entrance exams)',
+    'Consultants (Professional career or educational consultants)'
   ];
 
   @override

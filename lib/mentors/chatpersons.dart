@@ -14,8 +14,8 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
-  String filter = "All"; // Filter to toggle between "All", "Accepted", "Requested", and "Pending"
-  String searchQuery = ""; // Search input field value
+  String filter = "All";
+  String searchQuery = "";
   DBService dbService = DBService();
 
   @override
@@ -26,7 +26,7 @@ class _ChatState extends State<Chat> {
       builder: (context, snapshota) {
         if (!snapshota.hasData) return Loading();
 
-        DocumentSnapshot document = snapshota.data!;
+        DocumentSnapshot document = snapshota.data;
         Map<String, dynamic> mentor = document.data() as Map<String, dynamic>;
 
         return Scaffold(
@@ -37,239 +37,155 @@ class _ChatState extends State<Chat> {
               'Chats',
               style: TextStyle(color: Colors.white),
             ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.filter_alt, color: Colors.white),
+                icon: const Icon(Icons.filter_list, color: Colors.white),
                 onPressed: _showFilterDialog,
               ),
             ],
           ),
-          body: StreamBuilder(
-            stream: dbService.users(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return Loading();
-
-              QuerySnapshot querySnapshot = snapshot.data!;
-              List<DocumentSnapshot> documents = querySnapshot.docs;
-
-              // Apply filters and search
-              List<DocumentSnapshot> filteredDocs = documents.where((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                final name = data["name"]?.toLowerCase() ?? "";
-                final isAccepted =
-                    mentor['accepted']?.contains(data["uid"]) ?? false;
-                final isRequested =
-                    mentor['requested']?.contains(data["uid"]) ?? false;
-                final isPending =
-                    !isAccepted && !isRequested; // Pending condition
-
-                // Filter based on selected filter
-                bool passesFilter = filter == "All" ||
-                    (filter == "Accepted" && isAccepted) ||
-                    (filter == "Requested" && isRequested) ||
-                    (filter == "Pending" && isPending);
-
-                // Search logic
-                return passesFilter && name.contains(searchQuery.toLowerCase());
-              }).toList();
-
-              return Column(
-                children: [
-                  // Search Bar
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.search, color: Colors.white),
-                        hintText: 'Search Members',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                      onChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
+          body: Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search, color: Colors.white),
+                    hintText: 'Search',
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  // Empty state message
-                  if (filteredDocs.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Center(
-                        child: Text(
-                          'No members found.',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredDocs.length,
+                  style: const TextStyle(color: Colors.white),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value.toLowerCase();
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: StreamBuilder(
+                  stream: dbService.users(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return Loading();
+                    QuerySnapshot querySnapshot = snapshot.data;
+                    List<DocumentSnapshot> documents = querySnapshot.docs;
+
+                    // Exclude user's own profile and filter based on search query and selected filter
+                    List<DocumentSnapshot> filteredDocuments = documents.where((doc) {
+                      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                      bool isNotUser = data["uid"] != user.uid;
+                      bool matchesSearchQuery = data["name"]
+                          .toString()
+                          .toLowerCase()
+                          .contains(searchQuery);
+
+                      if (filter == "Requested") {
+                        return isNotUser && matchesSearchQuery && mentor["requested"].contains(data["uid"]);
+                      } else if (filter == "Accepted") {
+                        return isNotUser && matchesSearchQuery && mentor["accepted"].contains(data["uid"]);
+                      }
+                      return isNotUser && matchesSearchQuery;
+                    }).toList();
+
+                    return ListView.builder(
+                      itemCount: filteredDocuments.length,
                       itemBuilder: (context, index) {
-                        Map<String, dynamic> data =
-                        filteredDocs[index].data() as Map<String, dynamic>;
+                        Map<String, dynamic> data = filteredDocuments[index]
+                            .data() as Map<String, dynamic>;
+                        bool isRequested = mentor["requested"].contains(data["uid"]);
+                        bool isAccepted = mentor["accepted"].contains(data["uid"]);
 
-                        bool isRequested =
-                            mentor['requested']?.contains(data["uid"]) ?? false;
-                        bool isAccepted =
-                            mentor['accepted']?.contains(data["uid"]) ?? false;
-
-                        // Sort and create group name
-                        List docc = [data["uid"], user.uid];
-                        docc.sort();
-                        String combinedString = docc.join("");
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
-                          child: Card(
-                            color: const Color(0xFF393640),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            elevation: 4,
-                            child: ListTile(
-                              leading: const CircleAvatar(
-                                backgroundColor: Colors.blueAccent,
-                                child: Icon(
-                                  Icons.group,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              title: Text(
-                                data["name"] ?? '',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              subtitle: Text(
-                                isRequested
-                                    ? "Requested"
-                                    : isAccepted
-                                    ? "Accepted"
-                                    : "Pending",
-                                style: TextStyle(
-                                  color: isRequested
-                                      ? Colors.orange
-                                      : isAccepted
-                                      ? Colors.greenAccent
-                                      : Colors.grey,
-                                ),
-                              ),
-                              onTap: () async {
-                                if (isRequested) {
-                                  // Accept the request
-                                  await FirebaseFirestore.instance
-                                      .collection("users")
-                                      .doc(user.uid)
-                                      .update({
-                                    "requested":
-                                    FieldValue.arrayRemove([data["uid"]]),
-                                    "accepted":
-                                    FieldValue.arrayUnion([data["uid"]]),
-                                  });
-                                  await FirebaseFirestore.instance
-                                      .collection("users")
-                                      .doc(data["uid"])
-                                      .update({
-                                    "accepted":
-                                    FieldValue.arrayUnion([user.uid]),
-                                  });
-                                } else if (isAccepted) {
-                                  // Navigate to chat screen
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatUI(
-                                        name: data["name"],
-                                        groupName: combinedString,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
+                        return ListTile(
+                          leading: const Icon(Icons.group, color: Colors.white),
+                          title: Text(
+                            data["name"],
+                            style: const TextStyle(color: Colors.white),
                           ),
+                          subtitle: Text(
+                            "Status: ${isRequested ? "Requested" : isAccepted ? "Accepted" : "None"}",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          onTap: () {
+                            if (isRequested) {
+                              // Handle "Requested" tap
+                              _handleRequestTap(user, data);
+                            } else if (isAccepted) {
+                              // Handle "Accepted" tap
+                              _handleAcceptedTap(user, data);
+                            }
+                          },
                         );
                       },
-                    ),
-                  ),
-                ],
-              );
-            },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  // Filter Dialog
+  void _handleRequestTap(User user, Map<String, dynamic> data) async {
+    await FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+      "requested": FieldValue.arrayRemove([data["uid"]]),
+      "accepted": FieldValue.arrayUnion([data["uid"]]),
+    });
+    await FirebaseFirestore.instance.collection("users").doc(data["uid"]).update({
+      "accepted": FieldValue.arrayUnion([user.uid]),
+    });
+    List docc = [data["uid"], user.uid];
+    docc.sort();
+    String combinedString = docc.join("");
+    await FirebaseFirestore.instance.collection(combinedString).doc();
+  }
+
+  void _handleAcceptedTap(User user, Map<String, dynamic> data) {
+    List docc = [data["uid"], user.uid];
+    docc.sort();
+    String combinedString = docc.join("");
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatUI(name: data["name"], uid: data["uid"], groupName: combinedString),
+      ),
+    );
+  }
+
   void _showFilterDialog() {
     showModalBottomSheet(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: const Color(0xFF393640),
       context: context,
       builder: (context) {
         return ListView(
-          children: [
-            ListTile(
-              title: const Text(
-                "All",
-                style: TextStyle(color: Colors.white),
+          children: ["All", "Requested", "Accepted"].map((filterOption) {
+            return ListTile(
+              title: Text(
+                filterOption,
+                style: const TextStyle(color: Colors.white),
               ),
               onTap: () {
                 setState(() {
-                  filter = "All";
+                  filter = filterOption;
                 });
                 Navigator.pop(context);
               },
-            ),
-            ListTile(
-              title: const Text(
-                "Accepted Members",
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                setState(() {
-                  filter = "Accepted";
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text(
-                "Requested Members",
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                setState(() {
-                  filter = "Requested";
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text(
-                "Pending Members",
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                setState(() {
-                  filter = "Pending";
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ],
+            );
+          }).toList(),
         );
       },
     );

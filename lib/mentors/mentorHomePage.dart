@@ -69,11 +69,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
                     ),
                   ),
                   title: InkWell(
-                    onTap: () async {
-                      Navigator.pushReplacement(
-                          context, MaterialPageRoute(builder: (context) => IntroScreen()));
-                      await AuthService().SignOut();
-                    },
+
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -169,7 +165,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
                                 img: data["postImg"],
                               );
                             } else {
-                              return SizedBox.shrink();
+                              return SizedBox();
                             }
                           },
                         ),

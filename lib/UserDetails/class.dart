@@ -79,15 +79,13 @@ class _ClassSelectorPageState extends State<ClassSelectorPage> {
                   ? () async{
                       // Convert selectedClasses (List<int>) to List<String>
                 await FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
-                  "classes":selectedClasses.toString(),
+                  "classes":selectedClasses,
                   "avatarChoosed":true,
                   "requested":[],
                   "accepted":[],
                 });
 
-                      final selectedClassesStrings = selectedClasses
-                          .map((classNumber) => 'Class $classNumber')
-                          .toList();
+
 
                       Navigator.push(
                         context,

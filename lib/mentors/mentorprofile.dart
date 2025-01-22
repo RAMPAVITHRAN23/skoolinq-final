@@ -1,357 +1,196 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/dbservice.dart';
 
-void main() {
-  runApp(const MyApp());
+class View_profile extends StatefulWidget {
+  final String uid;
+  const View_profile({required this.uid,super.key});
+
+  @override
+  State<View_profile> createState() => _View_profileState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _View_profileState extends State<View_profile> {
+  DBService dbService = DBService();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const Mentorprofile(),
-    );
-  }
-}
+    final user = Provider.of<User?>(context);
 
-class Mentorprofile extends StatefulWidget {
-  const Mentorprofile({super.key});
 
-  @override
-  State<Mentorprofile> createState() => _MentorprofileState();
-}
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-class _MentorprofileState extends State<Mentorprofile> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _bioController = TextEditingController();
+    return StreamBuilder(
+      stream: dbService.checkDocument(widget.uid),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        DocumentSnapshot document = snapshot.data!;
+        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-  String name = "John Doe"; // Initial name
-  String bio = "Senior Software Engineer"; // Initial bio
-
-  // Function to show the success dialog
-  void _showUpdateDialog(String fieldName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("$fieldName Updated"),
-          content: Text("Your $fieldName has been successfully updated!"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Function to update name
-  void _updateName() {
-    setState(() {
-      name = _nameController.text;
-    });
-    _showUpdateDialog('Name');
-  }
-
-  // Function to update bio
-  void _updateBio() {
-    setState(() {
-      bio = _bioController.text;
-    });
-    _showUpdateDialog('Bio');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final double divHeight = MediaQuery.of(context).size.height;
-    final double divWidth = MediaQuery.of(context).size.width;
-
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.grey[900], // Background color for the whole page
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Header Section (No settings icon)
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'Mentor Profile',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: divHeight * 0.03,
-                    color: Colors.white,
-                  ),
-                ),
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.lightBlue[50],
+            body: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05,
+                vertical: screenHeight * 0.02,
               ),
-              SizedBox(height: divHeight * 0.03),
-
-              // Profile Picture Section
-              Center(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundColor: Colors.blue.withOpacity(0.3),
-                      child: CircleAvatar(
-                        radius: 65,
-                        backgroundImage: NetworkImage(
-                          'https://via.placeholder.com/150', // Replace with actual image URL
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 5,
-                      right: 5,
-                      child: GestureDetector(
-                        onTap: () {
-                          // Handle profile picture update
-                        },
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: divHeight * 0.02),
-
-              // Mentor Name
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: divHeight * 0.025,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(height: divHeight * 0.01),
-
-              // Mentor Bio
-              Text(
-                bio,
-                style: TextStyle(
-                  fontSize: divHeight * 0.018,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.grey[400],
-                ),
-              ),
-              Divider(
-                height: divHeight * 0.05,
-                thickness: 2.0,
-                color: Colors.grey[700],
-              ),
-
-              // Info Section
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                color: Colors.grey[800],
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
+                children: [
+                  // Header Section
+                  Row(
                     children: [
-                      InfoRow(
-                        icon: Icons.email_outlined,
-                        label: "Email",
-                        value: "johndoe@example.com",
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.blueGrey),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                      SizedBox(height: divHeight * 0.02),
-                      InfoRow(
-                        icon: Icons.phone_outlined,
-                        label: "Phone",
-                        value: "+1 234 567 890",
-                      ),
-                      SizedBox(height: divHeight * 0.02),
-                      InfoRow(
-                        icon: Icons.school_outlined,
-                        label: "Experience",
-                        value: "10+ Years in Software Development",
+                      Text(
+                        'Profile',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.4,
+                          color: Colors.blueGrey[800],
+                          fontSize: screenHeight * 0.035,
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              SizedBox(height: divHeight * 0.03),
+                  SizedBox(height: screenHeight * 0.03),
 
-              // Interactive Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ActionButton(
-                    icon: Icons.message,
-                    label: "Message",
-                    color: Colors.blue,
-                    onTap: () {
-                      // Handle message action
-                    },
+                  // Profile Picture
+                  Center(
+                    child: CircleAvatar(
+                      radius: screenHeight * 0.1,
+                      backgroundColor: Colors.blue.withOpacity(0.3),
+                      child: CircleAvatar(
+                        radius: screenHeight * 0.09,
+                        backgroundImage: NetworkImage(data["profilePic"] ?? ""),
+                      ),
+                    ),
                   ),
-                  ActionButton(
-                    icon: Icons.call,
-                    label: "Call",
-                    color: Colors.green,
-                    onTap: () {
-                      // Handle call action
-                    },
+                  SizedBox(height: screenHeight * 0.02),
+
+                  // Name Section
+                  Row(
+                    children: [
+                      const Icon(Icons.person, color: Colors.blueGrey),
+                      SizedBox(width: screenWidth * 0.03),
+                      Text(
+                        data["name"] ?? "Name not set",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenHeight * 0.025,
+                          color: Colors.blueGrey[800],
+                        ),
+                      ),
+                    ],
                   ),
-                  ActionButton(
-                    icon: Icons.edit,
-                    label: "Edit",
-                    color: Colors.orange,
-                    onTap: () {
-                      _editProfile(context);
-                    },
+                  SizedBox(height: screenHeight * 0.02),
+
+                  // Bio Section
+                  Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.blueGrey),
+                      SizedBox(width: screenWidth * 0.03),
+                      Expanded(
+                        child: Text(
+                          data["role"],
+                          style: TextStyle(
+                            fontSize: screenHeight * 0.02,
+                            color: Colors.blueGrey[600],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+
+                  // Info Section
+                  Container(
+                    padding: EdgeInsets.all(screenHeight * 0.02),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[100],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      children: [
+                        InfoRow(
+                          icon: Icons.people_alt_outlined,
+                          label: "Followers",
+                          value: (data["requested"].length + data["accepted"].length).toString(),
+                        ),
+                        SizedBox(height: screenHeight * 0.02),
+
+                        InfoRow(
+                          icon: Icons.location_on_outlined,
+                          label: "Location",
+                          value: data["location"] ?? "Not set",
+                        ),
+                        SizedBox(height: screenHeight * 0.02),
+                        InfoRow(
+                          icon: Icons.post_add_outlined,
+                          label: "Posts",
+                          value: data["postsCount"]?.toString() ?? "0",
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Function to show the Edit Profile dialog
-  void _editProfile(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Edit Profile"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Edit Name Field
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: "Name"),
-              ),
-              SizedBox(height: 10),
-              // Edit Bio Field
-              TextField(
-                controller: _bioController,
-                decoration: const InputDecoration(labelText: "Bio"),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text("Cancel"),
             ),
-            TextButton(
-              onPressed: () {
-                _updateName();
-                _updateBio();
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text("Save"),
-            ),
-          ],
+          ),
         );
       },
     );
   }
 }
 
-// Reusable InfoRow Widget
 class InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
 
   const InfoRow({
+    Key? key,
     required this.icon,
     required this.label,
     required this.value,
-    Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Row(
       children: [
-        Icon(icon, color: Colors.blue, size: 24),
-        const SizedBox(width: 15),
+        Icon(icon, color: Colors.blueGrey),
+        SizedBox(width: screenWidth * 0.03),
         Text(
           "$label: ",
-          style: const TextStyle(
-            fontSize: 16,
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.blueGrey[800],
+            fontSize: screenHeight * 0.02,
           ),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white,
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              color: Colors.blueGrey[600],
+              fontSize: screenHeight * 0.02,
+            ),
           ),
         ),
       ],
-    );
-  }
-}
-
-// Reusable ActionButton Widget
-class ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const ActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: color,
-            child: Icon(icon, color: Colors.white),
-          ),
-          SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -100,6 +100,7 @@ class _SearchState extends State<Search> {
           itemCount: mentorDocumentSnapshot.length,
           itemBuilder: (context, index) {
             Map<String, dynamic> mentors = mentorDocumentSnapshot[index].data() as Map<String, dynamic>;
+            print(mentors["uid"]);
             return data["accepted"].contains(mentors["uid"]) ? SizedBox() : _buildMentorCard(context, mentors, user);
           },
         );

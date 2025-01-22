@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skoolinq_project/mentors/chatpersons.dart';
 import 'package:skoolinq_project/mentors/mentorHomePage.dart';
+import 'package:skoolinq_project/mentors/mentorprofile.dart';
 import 'package:skoolinq_project/mentors/profile.dart';
 
 

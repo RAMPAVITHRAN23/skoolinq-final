@@ -69,7 +69,7 @@ class DBService {
   }
 
   Stream Mentors({required int Class}) {
-    return firestore.collection("users").where("role", isEqualTo: "Mentor").where("classes", arrayContains: Class).snapshots();
+    return firestore.collection("users").where("role", isEqualTo: "mentor").where("classes", arrayContains: Class).snapshots();
   }
 
   Stream<List<Map<String, dynamic>>> search(String word) {

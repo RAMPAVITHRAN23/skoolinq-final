@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skoolinq_project/Services/dbservice.dart';
 import 'package:skoolinq_project/Services/loading.dart';
+import 'package:skoolinq_project/mentors/mentorprofile.dart';
 
 class ChatUI extends StatefulWidget {
   final String groupName;
   final String name;
+  final String uid;
 
-  const ChatUI({required this.name, required this.groupName, super.key});
+  const ChatUI({required this.name, required this.groupName, required this.uid, super.key});
 
   @override
   State<ChatUI> createState() => _ChatUIState();
@@ -71,7 +73,7 @@ class _ChatUIState extends State<ChatUI> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserProfile(userId: widget.name), // Replace with your profile screen
+                    builder: (context) => View_profile(uid:widget.uid), // Replace with your profile screen
                   ),
                 );
               },

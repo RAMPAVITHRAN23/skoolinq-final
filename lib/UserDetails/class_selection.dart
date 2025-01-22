@@ -18,142 +18,103 @@ class _ClassSelectionPageState extends State<ClassSelectionPage> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    final user = Provider.of<User?>(context);
-
+    final user=Provider.of<User?>(context);
     return Scaffold(
-      backgroundColor: Color(0xFF1C1C1C), // Darker background color for better contrast
+      backgroundColor: const Color(0xFF202124), // Background color #202124
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'Class Selection',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: screenHeight * 0.035, // Slightly larger title for emphasis
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
       ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.05,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Centering the buttons vertically
-            children: [
-              SizedBox(height: screenHeight * 0.05),
-              Text(
-                'Choose Your Class',
+      body: Padding(
+        padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.05), // Dynamic horizontal padding
+        child: Column(
+          children: [
+            SizedBox(
+                height: screenHeight * 0.1), // Dynamic distance from the top
+            Center(
+              child: Text(
+                'Choose your class',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: screenHeight * 0.035,
+                  fontSize: screenHeight * 0.03, // Dynamic font size for title
                   fontWeight: FontWeight.bold,
                 ),
-                textAlign: TextAlign.center,
               ),
-              SizedBox(height: screenHeight * 0.05),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: screenWidth * 0.05,
-                runSpacing: screenHeight * 0.03,
-                children: [
-                  _buildClassButton(context, '9', Class910(), screenWidth, screenHeight),
-                  _buildClassButton(context, '10', Class910(), screenWidth, screenHeight),
-                  _buildClassButton(context, '11', Class1112Page(), screenWidth, screenHeight),
-                  _buildClassButton(context, '12', Class1112Page(), screenWidth, screenHeight),
-                ],
-              ),
-              SizedBox(height: screenHeight * 0.05),
-              ElevatedButton(
-                onPressed: selectedClass != null
-                    ? () {
-                  // Perform action on proceed
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MentorBottom(), // Replace with the desired page
-                    ),
-                  );
-                }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // White background for the button
-                  disabledBackgroundColor: Colors.grey, // Grey for disabled state
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.3,
-                    vertical: screenHeight * 0.02,
-                  ),
+            ),
+            SizedBox(
+                height: screenHeight * 0.05), // Dynamic spacing below the title
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildClassButton(context, '9', Class910(), screenWidth,
+                        screenHeight),
+                    SizedBox(
+                        width:
+                        screenWidth * 0.05), // Dynamic horizontal spacing
+                    _buildClassButton(context, '10', Class910(),
+                        screenWidth, screenHeight),
+                  ],
                 ),
-                child: Text(
-                  'Proceed',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: screenHeight * 0.025,
-                    fontWeight: FontWeight.bold,
-                  ),
+                SizedBox(height: screenHeight * 0.03), // Dynamic spacing
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildClassButton(context, '11', Class1112Page(),
+                        screenWidth, screenHeight),
+                    SizedBox(
+                        width:
+                        screenWidth * 0.05), // Dynamic horizontal spacing
+                    _buildClassButton(context, '12', Class1112Page(),
+                        screenWidth, screenHeight),
+                  ],
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildClassButton(BuildContext context, String className, Widget page, double screenWidth, double screenHeight) {
-    final user = Provider.of<User?>(context);
+  Widget _buildClassButton(BuildContext context, String className, Widget page,
+      double screenWidth, double screenHeight) {
+    final user=Provider.of<User?>(context);
+    return ElevatedButton(
+      onPressed: () async{
 
-    return GestureDetector(
-      onTap: () async {
-        setState(() {
-          selectedClass = className; // Set selected class
-        });
-        await FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
-          "class": className,
-          "avatarChoosed": true,
+        await  FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
+          "class":className,
+          "avatarChoosed":true,
         });
         Future.delayed(Duration(milliseconds: 200), () {
+          // Slight delay for visual effect
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => page),
+            MaterialPageRoute(builder: (context) =>page),
           );
         });
       },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        width: screenWidth * 0.4,
-        height: screenHeight * 0.12,
-        decoration: BoxDecoration(
-          color: selectedClass == className ? Color(0xFF176ADA) : Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: selectedClass == className ? Colors.blue : Colors.grey,
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: selectedClass == className
-                  ? Color(0xFF0C3C7A) // Darker blue shadow when selected
-                  : Color(0xFFBDBDBD), // Lighter shadow when not selected
-              offset: Offset(0, 4),
-              blurRadius: 8,
-            )
-          ],
+      style: ElevatedButton.styleFrom(
+        backgroundColor: selectedClass == className
+            ? const Color(0xFF176ADA) // Blue shade #176ADA
+            : const Color(0xFFD9D9D9), // Grey shade #D9D9D9
+        minimumSize:
+        Size(screenWidth * 0.4, screenHeight * 0.12), // Dynamic button size
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Center(
-          child: Text(
-            className,
-            style: TextStyle(
-              fontSize: screenHeight * 0.025,
-              color: selectedClass == className ? Colors.white : Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+      ),
+      child: Text(
+        className,
+        style: TextStyle(
+          fontSize: screenHeight * 0.025, // Dynamic font size for class name
+          color: selectedClass == className
+              ? Colors.white // White text on blue
+              : Colors.black, // Black text on grey
         ),
       ),
     );
