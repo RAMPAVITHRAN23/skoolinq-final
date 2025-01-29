@@ -128,16 +128,12 @@ class _View_profileState extends State<View_profile> {
                         ),
                         SizedBox(height: screenHeight * 0.02),
 
-                        InfoRow(
-                          icon: Icons.location_on_outlined,
-                          label: "Location",
-                          value: data["location"] ?? "Not set",
-                        ),
+
                         SizedBox(height: screenHeight * 0.02),
                         InfoRow(
                           icon: Icons.post_add_outlined,
                           label: "Posts",
-                          value: data["postsCount"]?.toString() ?? "0",
+                          value: data["posts"]?.toString() ?? "0",
                         ),
                       ],
                     ),
