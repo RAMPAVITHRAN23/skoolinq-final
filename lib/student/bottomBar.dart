@@ -24,7 +24,7 @@ class _BottomBarState extends State<BottomBar> {
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.search),label: "Home",),
+          BottomNavigationBarItem(icon: Icon(Icons.search),label: "Search",),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "Home",

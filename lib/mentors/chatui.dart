@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skoolinq_project/Services/dbservice.dart';
 import 'package:skoolinq_project/Services/loading.dart';
-import 'package:skoolinq_project/mentors/mentorprofile.dart';
+import 'package:skoolinq_project/mentors/viewprofile.dart';
 
 class ChatUI extends StatefulWidget {
   final String groupName;

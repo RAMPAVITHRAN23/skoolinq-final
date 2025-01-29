@@ -50,6 +50,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                      await  FirebaseFirestore.instance.collection("users").doc(user!.uid).set({
                         "role":role.toLowerCase(),
                        "uid":user!.uid,
+                       'email':user!.email,
                        "avatarChoosed":false,
                       });
                       Navigator.push(
@@ -62,6 +63,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                       await  FirebaseFirestore.instance.collection("users").doc(user!.uid).set({
                         "role":role.toLowerCase(),
                         "uid":user!.uid,
+                        'email':user!.email,
                         "avatarChoosed":false,
                       });
                       Navigator.push(

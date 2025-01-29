@@ -19,6 +19,13 @@ class _MentorHomePageState extends State<MentorHomePage> {
   TextEditingController postController = TextEditingController();
   int selectedFilterIndex = 0;
   DBService dbService = DBService();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +95,8 @@ class _MentorHomePageState extends State<MentorHomePage> {
                   centerTitle: true,
                 ),
                 body: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 20),
                       Text(
@@ -130,7 +136,8 @@ class _MentorHomePageState extends State<MentorHomePage> {
                       ),
                       SizedBox(height: 10),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        //spacing: 1,
+                       // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           FilterButton(
                             labels: "ALL",
@@ -152,6 +159,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
                       SizedBox(height: 20),
                       Expanded(
                         child: ListView.builder(
+                          controller: _scrollController,
                           itemCount: documentSnapshot.length,
                           itemBuilder: (context, index) {
                             Map<String, dynamic> data =
@@ -160,9 +168,11 @@ class _MentorHomePageState extends State<MentorHomePage> {
                                 (selectedFilterIndex == 1 && user.uid == data["uid"]) ||
                                 (selectedFilterIndex == 2 && user.uid != data["uid"])) {
                               return PostCard(
+                                docId: documentSnapshot[index].id,
                                 username: data['postedBy'],
                                 content: data["post"],
-                                img: data["postImg"],
+                                postedBy:data['uid'],
+                                img: data["postImg"], likes: data["likes"]!=null ? data["likes"]:[], uid: user!.uid,
                               );
                             } else {
                               return SizedBox();
@@ -187,8 +197,10 @@ class _MentorHomePageState extends State<MentorHomePage> {
     for (var field in profileFields) {
       if (data[field] != null && data[field].toString().isNotEmpty) {
         filledFields++;
+        print(filledFields);
       }
     }
+    print(filledFields);
 
     // Calculate the percentage of profile completion
     return (filledFields / profileFields.length * 100).toInt();
@@ -197,7 +209,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
   // Filter Button with Modern Style
   Widget FilterButton({required String labels, required bool isSelected, required final VoidCallback onTap}) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6),
+      padding: EdgeInsets.symmetric(horizontal:1),
       child: InkWell(
         onTap: onTap,
         child: Chip(
@@ -212,7 +224,12 @@ class _MentorHomePageState extends State<MentorHomePage> {
   }
 
   // Post Card with Modern Design
-  Widget PostCard({required String username, required String content, required String img}) {
+  Widget PostCard({required String username,
+    required String docId,
+    required String content,
+    required String postedBy,
+    required String img,required List likes,required String uid}) {
+    bool liked=likes.contains(uid);
     return Card(
       elevation: 8,
       shadowColor: Colors.grey.withOpacity(0.5),
@@ -259,8 +276,31 @@ class _MentorHomePageState extends State<MentorHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.thumb_up, color: Colors.black),
-                Icon(Icons.share, color: Colors.black),
+                Row(children: [
+                  Text(likes.length==0? "":likes.length.toString()),
+                  SizedBox(width: 3,),IconButton(
+                    onPressed: ()async{
+                      if(liked){
+                        likes.remove(uid);
+                        await FirebaseFirestore.instance.collection("posts").doc(docId).update({
+                          "likes":FieldValue.arrayRemove([uid])
+                        });
+                      }
+                      else{
+                        likes.add(uid);
+                        await FirebaseFirestore.instance.collection("posts").doc(docId).update({
+                          "likes":FieldValue.arrayUnion([uid])
+                        });
+                      }
+                    },
+                    icon:Icon(Icons.thumb_up), color: liked ? Colors.red :Colors.black),
+                ]
+                ),
+                postedBy==uid ? IconButton(
+                    onPressed: () async{
+                      await FirebaseFirestore.instance.collection("posts").doc(docId).delete();
+                    },
+                    icon:Icon(Icons.delete), color: Colors.black): SizedBox()
               ],
             ),
           ],

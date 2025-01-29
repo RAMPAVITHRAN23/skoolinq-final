@@ -222,7 +222,7 @@ class _MentorDetailsState extends State<MentorDetails> {
           });
         }
 
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => ClassSelectorPage()),
         );

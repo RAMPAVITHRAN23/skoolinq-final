@@ -74,15 +74,7 @@ class _Student_ProfileState extends State<Student_Profile>
                           fontSize: divHeight * 0.035,
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          // Navigate to settings
-                        },
-                        icon: const Icon(
-                          Icons.settings,
-                          color: Colors.blueGrey,
-                        ),
-                      ),
+
                     ],
                   ),
                   SizedBox(height: divHeight * 0.03),
@@ -241,17 +233,17 @@ class _Student_ProfileState extends State<Student_Profile>
                           label: "Email",
                           value: user.email ?? "Not available",
                         ),
-                        SizedBox(height: divHeight * 0.02),
+                       /* SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.location_on_outlined,
                           label: "Location",
                           value: data["location"] ?? "Not set",
-                        ),
+                        ),*/
                         SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.post_add_outlined,
                           label: "Posts",
-                          value: data["postsCount"]?.toString() ?? "0",
+                          value: data["posts"]?.toString() ?? "0",
                         ),
                       ],
                     ),

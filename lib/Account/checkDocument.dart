@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:skoolinq_project/Services/dbservice.dart';
 
 import 'package:skoolinq_project/UserDetails/studentOrMentor.dart';
+import 'package:skoolinq_project/mentors/admin.dart';
 import 'package:skoolinq_project/mentors/mentorBottom.dart';
 import 'package:skoolinq_project/student/bottomBar.dart';
 class Checkdocument extends StatefulWidget {
@@ -28,9 +29,14 @@ class _CheckdocumentState extends State<Checkdocument> {
       DocumentSnapshot documentSnapshot=snapshot.data;
       Map<String,dynamic> data=documentSnapshot.data() as  Map<String,dynamic>;
       if(data["avatarChoosed"]){
+
         if(data["role"]=="student") {
           return BottomBar();
-        }else{
+        }
+        else if(data['role']=="admin"){
+          return Admin();
+        }
+        else{
           return MentorBottom();
         }
       }

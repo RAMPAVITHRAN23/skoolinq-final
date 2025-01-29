@@ -36,6 +36,8 @@ class _SearchState extends State<Search> {
             title: Text('Search Mentors & Students', style: TextStyle(fontWeight: FontWeight.bold)),
             backgroundColor: Colors.blue,
             centerTitle: true,
+            automaticallyImplyLeading: false,
+
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -149,7 +151,7 @@ class _SearchState extends State<Search> {
             child: Text(mentorData["name"][0], style: TextStyle(color: Colors.white)),
           ),
           title: Text(mentorData['name'], style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(mentorData['profession'] ?? "No Profession"),
+          subtitle: Text(mentorData['profession'] ?? "Student"),
           trailing: ElevatedButton(
             onPressed: () async {
               showDialog(

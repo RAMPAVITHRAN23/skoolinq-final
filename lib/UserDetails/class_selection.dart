@@ -88,7 +88,7 @@ class _ClassSelectionPageState extends State<ClassSelectionPage> {
 
         await  FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
           "class":className,
-          "avatarChoosed":true,
+          //"avatarChoosed":false,
         });
         Future.delayed(Duration(milliseconds: 200), () {
           // Slight delay for visual effect

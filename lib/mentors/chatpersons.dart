@@ -107,7 +107,7 @@ class _ChatState extends State<Chat> {
                             .data() as Map<String, dynamic>;
                         bool isRequested = mentor["requested"].contains(data["uid"]);
                         bool isAccepted = mentor["accepted"].contains(data["uid"]);
-
+                        print(data['uid']);
                         return ListTile(
                           leading: const Icon(Icons.group, color: Colors.white),
                           title: Text(

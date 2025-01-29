@@ -20,8 +20,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
     final user = Provider.of<User?>(context);
 
     return StreamBuilder(
@@ -29,7 +35,9 @@ class _HomePageState extends State<HomePage> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Loading();
         DocumentSnapshot documentSnapshots = snapshot.data;
-        Map<String, dynamic> data = documentSnapshots.data() as Map<String, dynamic>;
+        Map<String, dynamic> data = documentSnapshots.data() as Map<
+            String,
+            dynamic>;
 
         return StreamBuilder(
           stream: dbService.posts(),
@@ -45,7 +53,9 @@ class _HomePageState extends State<HomePage> {
                 if (!mentorSnapshot.hasData) return Loading();
 
                 QuerySnapshot mentorQuerySnapshot = mentorSnapshot.data;
-                List<DocumentSnapshot> mentorDocumentSnapshot = mentorQuerySnapshot.docs;
+                List<
+                    DocumentSnapshot> mentorDocumentSnapshot = mentorQuerySnapshot
+                    .docs;
 
                 return Scaffold(
                   backgroundColor: Colors.white,
@@ -64,14 +74,16 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircleAvatar(
-                          backgroundImage: AssetImage("assets/avatar_${data["avatar"]}.jpg"),
+                          backgroundImage: AssetImage(
+                              "assets/avatar_${data["avatar"]}.jpg"),
                           backgroundColor: Colors.grey,
                           child: Icon(Icons.person, color: Colors.white),
                         ),
                         SizedBox(width: screenWidth * 0.02),
                         Text(
                           "Welcome, ${data["name"]}!!",
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                       ],
                     ),
@@ -112,10 +124,14 @@ class _HomePageState extends State<HomePage> {
                                 scrollDirection: Axis.horizontal,
                                 itemCount: mentorDocumentSnapshot.length,
                                 itemBuilder: (context, index) {
-                                  Map<String, dynamic> mentors = mentorDocumentSnapshot[index].data() as Map<String, dynamic>;
-                                  return !data["accepted"].contains(mentors["uid"])
+                                  Map<String,
+                                      dynamic> mentors = mentorDocumentSnapshot[index]
+                                      .data() as Map<String, dynamic>;
+                                  return !data["accepted"].contains(
+                                      mentors["uid"])
                                       ? Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
                                     child: InkWell(
                                       onTap: () {
                                         showDialog(
@@ -123,25 +139,36 @@ class _HomePageState extends State<HomePage> {
                                           builder: (BuildContext context) {
                                             return AlertDialog(
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
+                                                borderRadius: BorderRadius
+                                                    .circular(12),
                                               ),
                                               title: Text('Request Mentor'),
-                                              content: Text('Do you want to request this mentor?'),
+                                              content: Text(
+                                                  'Do you want to request this mentor?'),
                                               actions: [
                                                 TextButton(
                                                   onPressed: () async {
-                                                    await FirebaseFirestore.instance.collection("users").doc(mentors["uid"]).update({
-                                                      "requested": FieldValue.arrayUnion([user!.uid])
+                                                    await FirebaseFirestore
+                                                        .instance.collection(
+                                                        "users").doc(
+                                                        mentors["uid"]).update({
+                                                      "requested": FieldValue
+                                                          .arrayUnion(
+                                                          [user!.uid])
                                                     });
                                                     Navigator.of(context).pop();
                                                   },
-                                                  child: Text('Request', style: TextStyle(color: Colors.blue)),
+                                                  child: Text('Request',
+                                                      style: TextStyle(
+                                                          color: Colors.blue)),
                                                 ),
                                                 TextButton(
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
-                                                  child: Text('Cancel', style: TextStyle(color: Colors.red)),
+                                                  child: Text('Cancel',
+                                                      style: TextStyle(
+                                                          color: Colors.red)),
                                                 ),
                                               ],
                                             );
@@ -151,12 +178,16 @@ class _HomePageState extends State<HomePage> {
                                       child: Column(
                                         children: [
                                           CircleAvatar(
-                                            child: Text(mentors["name"][0], style: TextStyle(color: Colors.white)),
+                                            child: Text(mentors["name"][0],
+                                                style: TextStyle(
+                                                    color: Colors.white)),
                                             radius: screenWidth * 0.08,
                                             backgroundColor: Color(0xFF0288D1),
                                           ),
                                           SizedBox(height: 5),
-                                          Text(mentors['name'], style: TextStyle(color: Colors.black)),
+                                          Text(mentors['name'],
+                                              style: TextStyle(
+                                                  color: Colors.black)),
                                         ],
                                       ),
                                     ),
@@ -178,7 +209,8 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.white,
                           child: Column(
                             children: [
-                              SizedBox(height: screenHeight * 0.02), // Adds space between label and posts
+                              SizedBox(height: screenHeight * 0.02),
+                              // Adds space between label and posts
                               Text(
                                 "Posts",
                                 style: TextStyle(
@@ -188,24 +220,28 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              SizedBox(height: screenHeight * 0.02), // Adds space between label and posts
+                              SizedBox(height: screenHeight * 0.02),
+                              // Adds space between label and posts
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FilterButton(
                                     label: "ALL",
                                     isSelected: selectedFilterIndex == 0,
-                                    onTap: () => setState(() => selectedFilterIndex = 0),
+                                    onTap: () =>
+                                        setState(() => selectedFilterIndex = 0),
                                   ),
                                   FilterButton(
                                     label: "POSTED BY ME",
                                     isSelected: selectedFilterIndex == 1,
-                                    onTap: () => setState(() => selectedFilterIndex = 1),
+                                    onTap: () =>
+                                        setState(() => selectedFilterIndex = 1),
                                   ),
                                   FilterButton(
                                     label: "POSTED BY OTHERS",
                                     isSelected: selectedFilterIndex == 2,
-                                    onTap: () => setState(() => selectedFilterIndex = 2),
+                                    onTap: () =>
+                                        setState(() => selectedFilterIndex = 2),
                                   ),
                                 ],
                               ),
@@ -214,13 +250,21 @@ class _HomePageState extends State<HomePage> {
                                   shrinkWrap: true,
                                   itemCount: documentSnapshot.length,
                                   itemBuilder: (context, index) {
-                                    Map<String, dynamic> data = documentSnapshot[index].data() as Map<String, dynamic>;
-                                    if (selectedFilterIndex == 1 && user.uid != data["uid"]) return SizedBox();
-                                    if (selectedFilterIndex == 2 && user.uid == data["uid"]) return SizedBox();
+                                    Map<String,
+                                        dynamic> data = documentSnapshot[index]
+                                        .data() as Map<String, dynamic>;
+                                    if (selectedFilterIndex == 1 &&
+                                        user.uid != data["uid"])
+                                      return SizedBox();
+                                    if (selectedFilterIndex == 2 &&
+                                        user.uid == data["uid"])
+                                      return SizedBox();
                                     return PostCard(
+                                      docId: documentSnapshot[index].id,
                                       username: data['postedBy'],
                                       content: data["post"],
-                                      img: data["postImg"],
+                                      postedBy:data['uid'],
+                                      img: data["postImg"], likes: data["likes"]!=null ? data["likes"]:[], uid: user!.uid,
                                     );
                                   },
                                 ),
@@ -240,37 +284,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  PostCard({
-    required String username,
+  Widget PostCard({required String username,
+    required String docId,
     required String content,
-    required String img,
-  }) {
+    required String postedBy,
+    required String img, required List likes, required String uid}) {
+    bool liked = likes.contains(uid);
     return Card(
-      elevation: 4,
-      color: Color(0xFF0288D1),
+      elevation: 8,
+      shadowColor: Colors.grey.withOpacity(0.5),
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.blue[700]!, width: 2),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
-      margin: EdgeInsets.all(10),
+      margin: EdgeInsets.symmetric(vertical: 8),
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                CircleAvatar(child: Text(username[0].toUpperCase(), style: TextStyle(color: Colors.white))),
+                CircleAvatar(
+                  backgroundColor: Colors.grey,
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
                 SizedBox(width: 10),
-                Text(username, style: TextStyle(color: Colors.white)),
+                Text(username, style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold)),
               ],
             ),
-            SizedBox(height: 10),
-            if (RegExp(r'^[A-Za-z0-9+/]+={0,2}$').hasMatch(img))
+            SizedBox(height: 12),
+            if (img != null && img.isNotEmpty)
               Builder(
                 builder: (context) {
                   try {
-                    return Image.memory(base64Decode(img));
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.memory(base64Decode(img), fit: BoxFit.cover),
+                    );
                   } catch (e) {
                     print("Error decoding image: $e");
                     return SizedBox.shrink();
@@ -279,13 +331,43 @@ class _HomePageState extends State<HomePage> {
               )
             else
               SizedBox.shrink(),
-            Text(content, style: TextStyle(color: Colors.white)),
+            SizedBox(height: 10),
+            Text(content, style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.thumb_up, color: Colors.white),
-                Icon(Icons.share, color: Colors.white),
+                Row(children: [
+                  Text(likes.length == 0 ? "" : likes.length.toString()),
+                  SizedBox(width: 3,), IconButton(
+                      onPressed: () async {
+                        if (liked) {
+                          likes.remove(uid);
+                          await FirebaseFirestore.instance.collection("posts")
+                              .doc(docId)
+                              .update({
+                            "likes": FieldValue.arrayRemove([uid])
+                          });
+                        }
+                        else {
+                          likes.add(uid);
+                          await FirebaseFirestore.instance.collection("posts")
+                              .doc(docId)
+                              .update({
+                            "likes": FieldValue.arrayUnion([uid])
+                          });
+                        }
+                      },
+                      icon: Icon(Icons.thumb_up),
+                      color: liked ? Colors.red : Colors.black),
+                ]
+                ),
+                postedBy == uid ? IconButton(
+                    onPressed: () async {
+                      await FirebaseFirestore.instance.collection("posts").doc(
+                          docId).delete();
+                    },
+                    icon: Icon(Icons.delete), color: Colors.black) : SizedBox()
               ],
             ),
           ],

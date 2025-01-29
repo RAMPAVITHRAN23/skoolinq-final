@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skoolinq_project/Account/checkUserExist.dart';
 import 'package:skoolinq_project/Account/intro.dart';
+import 'package:skoolinq_project/Account/login.dart';
 class CheckAuth extends StatefulWidget {
   const CheckAuth({super.key});
 
@@ -17,6 +18,6 @@ class _CheckAuthState extends State<CheckAuth> {
     if(user!=null){
       return CheckUserExist(uid: user!.uid,);
     }
-    return IntroScreen();
+    return Signin();
   }
 }

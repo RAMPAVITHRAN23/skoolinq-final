@@ -76,9 +76,10 @@ class _CreatePostState extends State<CreatePost> {
               key: formKey,
               child: Padding(
                 padding: EdgeInsets.all(15),
-                child: Column(
+                child: SingleChildScrollView(child:Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(height: divHeight*0.2,),
                     InkWell(
                       onTap: pickImage,
                       child: Container(
@@ -151,6 +152,9 @@ class _CreatePostState extends State<CreatePost> {
                               "like": 0,
                               "timestamp": FieldValue.serverTimestamp(),
                             });
+                            await FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
+                              "posts":data["posts"]!=null ? data["posts"]+1 :1
+                            });
                             EasyLoading.dismiss();
                             post.clear();
                             setState(() {
@@ -192,6 +196,7 @@ class _CreatePostState extends State<CreatePost> {
                 ),
               ),
             ),
+            )
           );
         });
   }
