@@ -275,6 +275,7 @@ class _MentorDetailsState extends State<MentorDetails> {
     required void Function(String?) onChanged,
   }) {
     return DropdownButtonFormField<String>(
+      isExpanded:true,
       value: value,
       onChanged: onChanged,
       items: items.map((item) {
@@ -287,6 +288,7 @@ class _MentorDetailsState extends State<MentorDetails> {
         );
       }).toList(),
       decoration: InputDecoration(
+
         labelText: label,
         labelStyle: const TextStyle(color: Colors.white),
         prefixIcon: Icon(icon, color: Colors.white),

@@ -33,7 +33,7 @@ class _SearchState extends State<Search> {
         return Scaffold(
           backgroundColor: Colors.blue[50],
           appBar: AppBar(
-            title: Text('Search Mentors & Students', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: Text('Search Mentors', style: TextStyle(fontWeight: FontWeight.bold)),
             backgroundColor: Colors.blue,
             centerTitle: true,
             automaticallyImplyLeading: false,
@@ -49,7 +49,7 @@ class _SearchState extends State<Search> {
                     controller: search,
                     onChanged: (value) => setState(() => isSearching = value.isNotEmpty),
                     decoration: InputDecoration(
-                      hintText: "Search mentors or students...",
+                      hintText: "Search for mentors...",
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
                       prefixIcon: Icon(Icons.search, color: Colors.blue),
                       suffixIcon: search.text.isNotEmpty
@@ -121,7 +121,6 @@ class _SearchState extends State<Search> {
         if (searchDocumentSnapshot.isEmpty) {
           return Center(child: Text("No results found.", style: TextStyle(color: Colors.grey)));
         }
-
         return ListView.builder(
           shrinkWrap: true,
           itemCount: searchDocumentSnapshot.length,
@@ -152,7 +151,7 @@ class _SearchState extends State<Search> {
           ),
           title: Text(mentorData['name'], style: TextStyle(fontWeight: FontWeight.bold)),
           subtitle: Text(mentorData['profession'] ?? "Student"),
-          trailing: ElevatedButton(
+          trailing:!mentorData["requested"].contains(user!.uid) ? ElevatedButton(
             onPressed: () async {
               showDialog(
                 context: context,
@@ -169,6 +168,7 @@ class _SearchState extends State<Search> {
                               .update({
                             "requested": FieldValue.arrayUnion([user!.uid])
                           });
+
                           Navigator.pop(context);
                         },
                         child: Text("Request"),
@@ -184,7 +184,7 @@ class _SearchState extends State<Search> {
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
             child: Text("Request"),
-          ),
+          ):Text("Requested")
         ),
       ),
     );

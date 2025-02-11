@@ -38,6 +38,7 @@ class _CheckUserExistState extends State<CheckUserExist> {
 
         if (snapshot.hasData) {
           bool documentExists = snapshot.data ?? false;
+          print(documentExists);
           if (documentExists) {
 
             return Checkdocument();

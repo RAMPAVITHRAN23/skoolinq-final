@@ -242,6 +242,12 @@ class _Student_ProfileState extends State<Student_Profile>
                         SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.post_add_outlined,
+                          label: "Class",
+                          value: data["class"].toString(),
+                        ),
+                        SizedBox(height: divHeight * 0.02),
+                        InfoRow(
+                          icon: Icons.post_add_outlined,
                           label: "Posts",
                           value: data["posts"]?.toString() ?? "0",
                         ),

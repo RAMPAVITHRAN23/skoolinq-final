@@ -21,10 +21,14 @@ class _ProfileState extends State<Profile> {
   DBService dbService = DBService();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
+  final TextEditingController professionController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final ImagePicker _imagePicker = ImagePicker();
   String? newProfilePic;
   bool isEditingName = false;
   bool isEditingBio = false;
+  bool isEditingProfession=false;
+  bool isEditingPhone=false;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +55,8 @@ class _ProfileState extends State<Profile> {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
         nameController.text = data["name"] ?? "";
         bioController.text = data["bio"] ?? "";
-
+        professionController.text=data["profession"] ?? "";
+        phoneController.text=data["phone"] ?? "";
         return SafeArea(
           child: Scaffold(
             backgroundColor: Colors.lightBlue[50], // Full background color
@@ -197,7 +202,57 @@ class _ProfileState extends State<Profile> {
                     ],
                   ),
                   SizedBox(height: divHeight * 0.02),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: professionController,
+                          style: TextStyle(
+                            fontSize: divHeight * 0.03,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueGrey[800],
+                          ),
+                          decoration: InputDecoration(
+                            labelText: "Profession",
+                            labelStyle: TextStyle(
+                              color: Colors.blueGrey[600],
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blueGrey[600]!),
+                            ),
+                          ),
+                          enabled: isEditingProfession,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isEditingProfession ? Icons.check : Icons.edit,
+                          color: Colors.blueGrey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            if (isEditingProfession) {
+                              EasyLoading.show(status: "Saving Profession...");
+                              dbService.updateUserData(
+                                user.uid,
+                                {"profession": professionController.text.trim()}, // Updating profession instead of name
+                              ).then((_) {
+                                EasyLoading.dismiss();
+                                setState(() {
+                                  isEditingProfession = false;
+                                });
+                              });
+                            } else {
+                              isEditingProfession = true;
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                  ),
 
+                  SizedBox(height: divHeight * 0.02),
                   // Bio Section with Edit Option
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -255,7 +310,54 @@ class _ProfileState extends State<Profile> {
                     ),
                   ),
                   SizedBox(height: divHeight * 0.03),
-
+                  /*Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: phoneController,  // Phone number controller
+                          keyboardType: TextInputType.phone,
+                          style: TextStyle(
+                            fontSize: divHeight * 0.03,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueGrey[800],
+                          ),
+                          decoration: InputDecoration(
+                            labelText: "Phone Number",
+                            labelStyle: TextStyle(color: Colors.blueGrey[600]),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blueGrey[600]!),
+                            ),
+                          ),
+                          enabled: isEditingPhone,  // Enable only when editing
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isEditingPhone ? Icons.check : Icons.edit,
+                          color: Colors.blueGrey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            if (isEditingPhone) {
+                              EasyLoading.show(status: "Saving Phone...");
+                              dbService.updateUserData(
+                                user.uid,
+                                {"phone": phoneController.text.trim()}, // Update phone number
+                              ).then((_) {
+                                EasyLoading.dismiss();
+                                setState(() {
+                                  isEditingPhone = false;
+                                });
+                              });
+                            } else {
+                              isEditingPhone = true;
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                  ),*/
                   // Info Section (Followers, Email, Location, Posts)
                   Container(
                     width: double.infinity,
@@ -278,18 +380,15 @@ class _ProfileState extends State<Profile> {
                           label: "Email",
                           value: user.email ?? "Not available",
                         ),
-                        SizedBox(height: divHeight * 0.02),
-                        InfoRow(
-                          icon: Icons.email_outlined,
-                          label: "Profession",
-                          value: data["profession"] ?? "Not available",
-                        ),
+
                        /* SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.location_on_outlined,
                           label: "Location",
                           value: data["location"] ?? "Not set",
                         ),*/
+
+
                         SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.post_add_outlined,
@@ -347,7 +446,7 @@ class InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Container(child:Row(
       children: [
         Icon(
           icon,
@@ -370,7 +469,8 @@ class InfoRow extends StatelessWidget {
             fontSize: 16,
           ),
         ),
+
       ],
-    );
+    ));
   }
 }

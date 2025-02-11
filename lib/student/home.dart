@@ -8,6 +8,7 @@ import 'package:skoolinq_project/Account/intro.dart';
 import 'package:skoolinq_project/Services/authService.dart';
 import 'package:skoolinq_project/Services/dbservice.dart';
 import 'package:skoolinq_project/Services/loading.dart';
+import 'package:skoolinq_project/mentors/viewprofile.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -134,10 +135,11 @@ class _HomePageState extends State<HomePage> {
                                         horizontal: 10),
                                     child: InkWell(
                                       onTap: () {
-                                        showDialog(
+                                        print( mentors["requested"].contains(user!.uid));
+                                        mentors["requested"].contains(user!.uid) ? Navigator.push(context, MaterialPageRoute(builder: (context)=>View_profile(uid: mentors["uid"]))) :  showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
-                                            return AlertDialog(
+                                            return  AlertDialog(
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius
                                                     .circular(12),
@@ -264,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                                       username: data['postedBy'],
                                       content: data["post"],
                                       postedBy:data['uid'],
-                                      img: data["postImg"], likes: data["likes"]!=null ? data["likes"]:[], uid: user!.uid,
+                                      img: data["postImg"], likes: data["likes"]!=null ? data["likes"]:[], uid: user!.uid,np:data["posts"] ?? 0
                                     );
                                   },
                                 ),
@@ -288,7 +290,7 @@ class _HomePageState extends State<HomePage> {
     required String docId,
     required String content,
     required String postedBy,
-    required String img, required List likes, required String uid}) {
+    required String img, required List likes, required String uid,required int np}) {
     bool liked = likes.contains(uid);
     return Card(
       elevation: 8,
@@ -303,16 +305,27 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            InkWell(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => View_profile(uid:postedBy), // Replace with your profile screen
+                  ),
+                );
+              },
+
+              child:Row(
               children: [
-                CircleAvatar(
+                /*CircleAvatar(
                   backgroundColor: Colors.grey,
                   child: Icon(Icons.person, color: Colors.white),
-                ),
+                ),*/
                 SizedBox(width: 10),
                 Text(username, style: TextStyle(
                     color: Colors.black, fontWeight: FontWeight.bold)),
               ],
+            ),
             ),
             SizedBox(height: 12),
             if (img != null && img.isNotEmpty)
@@ -366,6 +379,9 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () async {
                       await FirebaseFirestore.instance.collection("posts").doc(
                           docId).delete();
+                      await FirebaseFirestore.instance.collection("users").doc(postedBy).update({
+                        "posts":np-1
+                      });
                     },
                     icon: Icon(Icons.delete), color: Colors.black) : SizedBox()
               ],

@@ -30,19 +30,15 @@ class _ChatState extends State<Chat> {
         Map<String, dynamic> mentor = document.data() as Map<String, dynamic>;
 
         return Scaffold(
-          backgroundColor: const Color(0xFF202124),
+          backgroundColor: const Color(0xFF18191A),
           appBar: AppBar(
-            backgroundColor: const Color(0xFF202124),
+            elevation: 3,
+            backgroundColor: const Color(0xFF242526),
             title: const Text(
               'Chats',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
+
             actions: [
               IconButton(
                 icon: const Icon(Icons.filter_list, color: Colors.white),
@@ -52,91 +48,114 @@ class _ChatState extends State<Chat> {
           ),
           body: Column(
             children: [
-              // Search Bar
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search, color: Colors.white),
-                    hintText: 'Search',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value.toLowerCase();
-                    });
-                  },
-                ),
-              ),
-              Expanded(
-                child: StreamBuilder(
-                  stream: dbService.users(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return Loading();
-                    QuerySnapshot querySnapshot = snapshot.data;
-                    List<DocumentSnapshot> documents = querySnapshot.docs;
-
-                    // Exclude user's own profile and filter based on search query and selected filter
-                    List<DocumentSnapshot> filteredDocuments = documents.where((doc) {
-                      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                      bool isNotUser = data["uid"] != user.uid;
-                      bool matchesSearchQuery = data["name"]
-                          .toString()
-                          .toLowerCase()
-                          .contains(searchQuery);
-
-                      if (filter == "Requested") {
-                        return isNotUser && matchesSearchQuery && mentor["requested"].contains(data["uid"]);
-                      } else if (filter == "Accepted") {
-                        return isNotUser && matchesSearchQuery && mentor["accepted"].contains(data["uid"]);
-                      }
-                      return isNotUser && matchesSearchQuery;
-                    }).toList();
-
-                    return ListView.builder(
-                      itemCount: filteredDocuments.length,
-                      itemBuilder: (context, index) {
-                        Map<String, dynamic> data = filteredDocuments[index]
-                            .data() as Map<String, dynamic>;
-                        bool isRequested = mentor["requested"].contains(data["uid"]);
-                        bool isAccepted = mentor["accepted"].contains(data["uid"]);
-                        print(data['uid']);
-                        return ListTile(
-                          leading: const Icon(Icons.group, color: Colors.white),
-                          title: Text(
-                            data["name"],
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          subtitle: Text(
-                            "Status: ${isRequested ? "Requested" : isAccepted ? "Accepted" : "None"}",
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          onTap: () {
-                            if (isRequested) {
-                              // Handle "Requested" tap
-                              _handleRequestTap(user, data);
-                            } else if (isAccepted) {
-                              // Handle "Accepted" tap
-                              _handleAcceptedTap(user, data);
-                            }
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
+              _buildSearchBar(),
+              Expanded(child: _buildChatList(user, mentor)),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: TextField(
+        decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.search, color: Colors.white),
+          hintText: 'Search users...',
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        style: const TextStyle(color: Colors.white),
+        onChanged: (value) {
+          setState(() {
+            searchQuery = value.toLowerCase();
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildChatList(User user, Map<String, dynamic> mentor) {
+    return StreamBuilder(
+      stream: dbService.users(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Loading();
+        QuerySnapshot querySnapshot = snapshot.data;
+        List<DocumentSnapshot> documents = querySnapshot.docs;
+
+        // Exclude user's own profile and filter based on search query and selected filter
+        List<DocumentSnapshot> filteredDocuments = documents.where((doc) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          bool isNotUser = data["uid"] != user.uid;
+          bool matchesSearchQuery = data["name"].toString().toLowerCase().contains(searchQuery);
+
+          if (filter == "Requested") {
+            return isNotUser && matchesSearchQuery && mentor["requested"].contains(data["uid"]);
+          } else if (filter == "Accepted") {
+            return isNotUser && matchesSearchQuery && mentor["accepted"].contains(data["uid"]);
+          }
+          return isNotUser && matchesSearchQuery;
+        }).toList();
+
+        return ListView.builder(
+          itemCount: filteredDocuments.length,
+          itemBuilder: (context, index) {
+            Map<String, dynamic> data = filteredDocuments[index].data() as Map<String, dynamic>;
+            bool isRequested = mentor["requested"].contains(data["uid"]);
+            bool isAccepted = mentor["accepted"].contains(data["uid"]);
+
+            return data["role"] != "admin"
+                ? _buildChatTile(user, data, isRequested, isAccepted)
+                : const SizedBox();
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildChatTile(User user, Map<String, dynamic> data, bool isRequested, bool isAccepted) {
+    return Card(
+      color: const Color(0xFF242526),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.blueAccent,
+          child: Text(
+            data["name"][0],
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+        title: Text(
+          data["name"],
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+        subtitle: Text(
+          "Status: ${isRequested ? "Requested" : isAccepted ? "Accepted" : "None"}",
+          style: TextStyle(color: Colors.white.withOpacity(0.7)),
+        ),
+        trailing: Chip(
+          backgroundColor: isAccepted ? Colors.green : isRequested ? Colors.orange : Colors.grey,
+          label: Text(
+            data["role"],
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+        onTap: () {
+          if (isRequested) {
+            _handleRequestTap(user, data);
+          } else if (isAccepted) {
+            _handleAcceptedTap(user, data);
+          }
+        },
+      ),
     );
   }
 
@@ -171,12 +190,13 @@ class _ChatState extends State<Chat> {
       backgroundColor: const Color(0xFF393640),
       context: context,
       builder: (context) {
-        return ListView(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: ["All", "Requested", "Accepted"].map((filterOption) {
             return ListTile(
               title: Text(
                 filterOption,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
               ),
               onTap: () {
                 setState(() {

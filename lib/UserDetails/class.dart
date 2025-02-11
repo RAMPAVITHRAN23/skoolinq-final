@@ -87,12 +87,11 @@ class _ClassSelectorPageState extends State<ClassSelectorPage> {
 
 
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>Checkdocument(),
-                        ),
-                      );
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => MentorBottom()),
+                      (route) => false, // Removes all previous pages
+                );
                     }
                   : null,
               style: ElevatedButton.styleFrom(

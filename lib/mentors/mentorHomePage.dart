@@ -7,9 +7,13 @@ import 'package:skoolinq_project/Account/intro.dart';
 import 'package:skoolinq_project/Services/authService.dart';
 import 'package:skoolinq_project/Services/dbservice.dart';
 import 'package:skoolinq_project/Services/loading.dart';
+import 'package:skoolinq_project/mentors/viewprofile.dart';
 
 class MentorHomePage extends StatefulWidget {
-  const MentorHomePage({super.key});
+  final VoidCallback onProfileNavigate;
+
+
+  const MentorHomePage({required this.onProfileNavigate,super.key});
 
   @override
   State<MentorHomePage> createState() => _MentorHomePageState();
@@ -104,7 +108,9 @@ class _MentorHomePageState extends State<MentorHomePage> {
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       SizedBox(height: 10),
-                      Card(
+                      ElevatedButton(
+                        onPressed:widget.onProfileNavigate,
+                        child:Card(
                         color: Colors.blue[200], // Soft background color for the profile completion container
                         elevation: 5,
                         shape: RoundedRectangleBorder(
@@ -128,6 +134,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
                             ],
                           ),
                         ),
+                      ),
                       ),
                       SizedBox(height: 20),
                       Text(
@@ -173,6 +180,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
                                 content: data["post"],
                                 postedBy:data['uid'],
                                 img: data["postImg"], likes: data["likes"]!=null ? data["likes"]:[], uid: user!.uid,
+                                np:data["posts"]?? 0
                               );
                             } else {
                               return SizedBox();
@@ -228,7 +236,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
     required String docId,
     required String content,
     required String postedBy,
-    required String img,required List likes,required String uid}) {
+    required String img,required List likes,required String uid,required int np}) {
     bool liked=likes.contains(uid);
     return Card(
       elevation: 8,
@@ -243,15 +251,26 @@ class _MentorHomePageState extends State<MentorHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            InkWell(
+            onTap: (){
+              print(uid);
+      Navigator.push(
+      context,
+      MaterialPageRoute(
+      builder: (context) => View_profile(uid:postedBy), // Replace with your profile screen
+      ),
+      );
+      },
+          child: Row(
               children: [
-                CircleAvatar(
+               /* CircleAvatar(
                   backgroundColor: Colors.grey,
                   child: Icon(Icons.person, color: Colors.white),
-                ),
+                ),*/
                 SizedBox(width: 10),
                 Text(username, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ],
+            ),
             ),
             SizedBox(height: 12),
             if (img != null && img.isNotEmpty)
@@ -299,6 +318,9 @@ class _MentorHomePageState extends State<MentorHomePage> {
                 postedBy==uid ? IconButton(
                     onPressed: () async{
                       await FirebaseFirestore.instance.collection("posts").doc(docId).delete();
+                      await FirebaseFirestore.instance.collection("users").doc(postedBy).update({
+                        "posts":np-1
+                      });
                     },
                     icon:Icon(Icons.delete), color: Colors.black): SizedBox()
               ],

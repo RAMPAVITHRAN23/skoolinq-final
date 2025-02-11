@@ -15,12 +15,27 @@ class MentorBottom extends StatefulWidget {
 }
 
 class _MentorBottomState extends State<MentorBottom> {
-  List pages=[MentorHomePage(),CreatePost(),Chat(),Profile()];
-  int current=0;
+  int current = 0; // Current selected tab index
+  final PageController _pageController = PageController(); // PageController for navigation
+
+  // Function to switch tabs
+  void _switchToProfile() {
+    print("jjjjjjjjjjjjjj");
+    setState(() {
+      current = 3; // Set index to Profile
+    });
+    _pageController.jumpToPage(3); // Move to Profile Page
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:pages[current],
+      body: PageView(
+        controller: _pageController,
+        physics: NeverScrollableScrollPhysics(), // Disable swipe
+        children: [
+          MentorHomePage(onProfileNavigate: _switchToProfile),CreatePost(),Chat(),Profile()
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xFF176ADA),
@@ -50,6 +65,7 @@ class _MentorBottomState extends State<MentorBottom> {
           setState(() {
             current = index;
           });
+          _pageController.jumpToPage(index);
         },
       ),
     );

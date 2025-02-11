@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skoolinq_project/Account/checkAuth.dart';
 import 'package:skoolinq_project/Account/checkDocument.dart';
+import 'package:skoolinq_project/student/bottomBar.dart';
 
 class NextPage extends StatefulWidget {
   @override
@@ -67,10 +69,11 @@ class _NextPageState extends State<NextPage> {
                         "requested": [],
                         "avatar": _selectedAvatarIndex! + 1
                       });
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Checkdocument()));
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => BottomBar()),
+                            (route) => false, // Removes all previous pages
+                      );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Please select an avatar to continue')),

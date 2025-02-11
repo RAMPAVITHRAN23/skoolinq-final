@@ -151,6 +151,7 @@ class _CreatePostState extends State<CreatePost> {
                               "postImg": base64Image,
                               "like": 0,
                               "timestamp": FieldValue.serverTimestamp(),
+
                             });
                             await FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
                               "posts":data["posts"]!=null ? data["posts"]+1 :1

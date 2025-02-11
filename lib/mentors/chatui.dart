@@ -26,14 +26,8 @@ class _ChatUIState extends State<ChatUI> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToBottomInstantly();
+      _scrollToBottomSmoothly();
     });
-  }
-
-  void _scrollToBottomInstantly() {
-    if (_scrollController.hasClients) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    }
   }
 
   void _scrollToBottomSmoothly() {
@@ -48,8 +42,6 @@ class _ChatUIState extends State<ChatUI> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
     final user = Provider.of<User?>(context);
 
     return StreamBuilder(
@@ -65,7 +57,7 @@ class _ChatUIState extends State<ChatUI> {
         });
 
         return Scaffold(
-          backgroundColor: Colors.blue[100],  // Background color updated
+          backgroundColor: Colors.grey[100],
           appBar: AppBar(
             backgroundColor: Colors.teal,
             title: InkWell(
@@ -73,7 +65,7 @@ class _ChatUIState extends State<ChatUI> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => View_profile(uid:widget.uid), // Replace with your profile screen
+                    builder: (context) => View_profile(uid: widget.uid),
                   ),
                 );
               },
@@ -84,10 +76,7 @@ class _ChatUIState extends State<ChatUI> {
                     child: Icon(Icons.person, color: Colors.teal),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    widget.name,
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  Text(widget.name, style: const TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -102,7 +91,6 @@ class _ChatUIState extends State<ChatUI> {
               Expanded(
                 child: ListView.builder(
                   controller: _scrollController,
-                  shrinkWrap: true,
                   itemCount: chatDocuments.length,
                   itemBuilder: (context, index) {
                     if (chatDocuments[index].id == "1") return const SizedBox();
@@ -111,31 +99,27 @@ class _ChatUIState extends State<ChatUI> {
                     chatDocuments[index].data() as Map<String, dynamic>;
                     bool isSentByMe = chats["uid"].toString() == user!.uid;
 
-                    return Align(
-                      alignment: isSentByMe
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        margin: EdgeInsets.symmetric(
-                          vertical: screenHeight * 0.01,
-                          horizontal: screenWidth * 0.03,
-                        ),
-                        padding: EdgeInsets.all(screenWidth * 0.04),
-                        decoration: BoxDecoration(
-                          color: isSentByMe ? Colors.teal : Colors.grey[800],
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          chats["chat"],
-                          style: TextStyle(
-                            color: isSentByMe ? Colors.white : Colors.white70,
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      child: Align(
+                        alignment:
+                        isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                          decoration: BoxDecoration(
+                            color: isSentByMe ? Colors.teal : Colors.grey[800],
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(2, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            chats["chat"],
+                            style: const TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         ),
                       ),
@@ -144,17 +128,15 @@ class _ChatUIState extends State<ChatUI> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.03,
-                  vertical: screenHeight * 0.01,
-                ),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.grey[800],
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 5,
-                      offset: const Offset(0, -1),
+                      offset: const Offset(0, -2),
                     ),
                   ],
                 ),
@@ -165,43 +147,37 @@ class _ChatUIState extends State<ChatUI> {
                         controller: chatTextController,
                         decoration: InputDecoration(
                           hintText: "Type a message...",
-                          hintStyle: const TextStyle(color: Colors.white70),
+                          hintStyle: const TextStyle(color: Colors.grey),
                           filled: true,
-                          fillColor: Colors.grey[700],
+                          fillColor: Colors.grey[200],
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: screenHeight * 0.01,
-                            horizontal: screenWidth * 0.03,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 15,
                           ),
                         ),
-                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
-                    SizedBox(width: screenWidth * 0.02),
+                    const SizedBox(width: 10),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.teal,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                       child: IconButton(
                         icon: const Icon(Icons.send, color: Colors.white),
                         onPressed: () async {
                           if (chatTextController.text.isNotEmpty) {
-                            await FirebaseFirestore.instance
-                                .collection(widget.groupName)
-                                .add({
+                            await FirebaseFirestore.instance.collection(widget.groupName).add({
                               "chat": chatTextController.text,
                               "uid": user!.uid,
                               "timeStamp": FieldValue.serverTimestamp(),
                             });
                             chatTextController.clear();
-
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              _scrollToBottomSmoothly();
-                            });
+                            _scrollToBottomSmoothly();
                           }
                         },
                       ),
@@ -213,25 +189,6 @@ class _ChatUIState extends State<ChatUI> {
           ),
         );
       },
-    );
-  }
-}
-
-class UserProfile extends StatelessWidget {
-  final String userId;
-
-  const UserProfile({required this.userId, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Replace with actual profile implementation
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("User Profile"),
-      ),
-      body: Center(
-        child: Text("Profile for User ID: $userId"),
-      ),
     );
   }
 }
