@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:skoolinq_project/student/editprofilestudent.dart';
 import '../Account/checkAuth.dart';
 import '../services/dbservice.dart';
 import '../services/authservice.dart';
@@ -124,30 +125,7 @@ class _Student_ProfileState extends State<Student_Profile>
                           enabled: isEditingName,
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          isEditingName ? Icons.check : Icons.edit,
-                          color: Colors.blueGrey,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            if (isEditingName) {
-                              EasyLoading.show(status: "Saving Name...");
-                              dbService.updateUserData(
-                                user.uid,
-                                {"name": nameController.text.trim()},
-                              ).then((_) {
-                                EasyLoading.dismiss();
-                                setState(() {
-                                  isEditingName = false;
-                                });
-                              });
-                            } else {
-                              isEditingName = true;
-                            }
-                          });
-                        },
-                      ),
+
                     ],
                   ),
                   SizedBox(height: divHeight * 0.02),
@@ -164,30 +142,7 @@ class _Student_ProfileState extends State<Student_Profile>
                           color: Colors.blueGrey,
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          isEditingBio ? Icons.check : Icons.edit,
-                          color: Colors.blue,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            if (isEditingBio) {
-                              EasyLoading.show(status: "Saving Bio...");
-                              dbService.updateUserData(
-                                user.uid,
-                                {"bio": bioController.text.trim()},
-                              ).then((_) {
-                                EasyLoading.dismiss();
-                                setState(() {
-                                  isEditingBio = false;
-                                });
-                              });
-                            } else {
-                              isEditingBio = true;
-                            }
-                          });
-                        },
-                      ),
+
                     ],
                   ),
                   Container(
@@ -256,7 +211,9 @@ class _Student_ProfileState extends State<Student_Profile>
                   ),
 
                   SizedBox(height: divHeight * 0.03),
-
+                  ElevatedButton(onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfileStudent(uid: user!.uid)));},
+                    child: Text("Edit Profile")),
+                  SizedBox(height: divHeight * 0.03),
                   // Log Out Button
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
