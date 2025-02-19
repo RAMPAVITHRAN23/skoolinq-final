@@ -85,12 +85,13 @@ class _ChatPageState extends State<ChatPage> {
           backgroundColor: Color(0xFF121212),
           appBar: AppBar(
             backgroundColor: Color(0xFF1A1A1A),
-            title: Text('Chats', style: TextStyle(color: Colors.white, fontSize: 22)),
+            centerTitle: true,
+            title: Text(' Your Chats', style: TextStyle(color: Colors.white, fontSize: 22)),
             actions: [
-              IconButton(
-                icon: Icon(Icons.search, color: Colors.white),
-                onPressed: showSearchDialog,
-              ),
+              // IconButton(
+              //   icon: Icon(Icons.search, color: Colors.white),
+              //   onPressed: showSearchDialog,
+              // ),
             ],
           ),
           body: StreamBuilder(
@@ -103,24 +104,24 @@ class _ChatPageState extends State<ChatPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextField(
-                        controller: searchController,
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search, color: Colors.white),
-                          hintText: 'Search Users...',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                          filled: true,
-                          fillColor: Colors.white.withOpacity(0.2),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(16.0),
+                    //   child: TextField(
+                    //     controller: searchController,
+                    //     decoration: InputDecoration(
+                    //       prefixIcon: Icon(Icons.search, color: Colors.white),
+                    //       hintText: 'Search Users...',
+                    //       hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    //       filled: true,
+                    //       fillColor: Colors.white.withOpacity(0.2),
+                    //       border: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(15),
+                    //         borderSide: BorderSide.none,
+                    //       ),
+                    //     ),
+                    //     style: TextStyle(color: Colors.white),
+                    //   ),
+                    // ),
                     ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
@@ -193,7 +194,7 @@ class _ChatPageState extends State<ChatPage> {
           child: Icon(icon, color: Colors.white),
         ),
         title: Text(
-          data["name"]!,
+          data["name"],
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

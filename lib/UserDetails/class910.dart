@@ -176,12 +176,12 @@ class _Class910State extends State<Class910> {
                           .collection("users")
                           .doc(user!.uid)
                           .update({
-                        "name": fullNameController.text.trim(),
+                        "name": fullNameController.text.trim().toString(),
                         "dob":
                         '${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}',
-                        "phone": phoneNumberController.text.trim(),
-                        "schoolName": schoolNameController.text.trim(),
-                        "board": selectedBoard,
+                        "phone": phoneNumberController.text.trim().toString(),
+                        "schoolName": schoolNameController.text.trim().toString(),
+                        "board": selectedBoard.toString().toLowerCase(),
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

@@ -105,6 +105,7 @@ class _Student_ProfileState extends State<Student_Profile>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+
                       Expanded(
                         child: TextField(
                           controller: nameController,

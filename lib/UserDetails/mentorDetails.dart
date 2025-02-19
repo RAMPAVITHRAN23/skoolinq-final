@@ -15,6 +15,7 @@ class _MentorDetailsState extends State<MentorDetails> {
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController schoolNameController = TextEditingController();
+  final TextEditingController phonenum=TextEditingController();
   DateTime? birthDate;
   String? selectedBoard;
   String? selectedMentorType;
@@ -79,7 +80,13 @@ class _MentorDetailsState extends State<MentorDetails> {
                     hint: 'Enter your full name',
                   ),
                   SizedBox(height: screenHeight * 0.02),
-
+                  _buildTextField(
+                    controller: phonenum,
+                    label: 'Phone Number ',
+                    keyboardType: TextInputType.number,
+                    icon: Icons.phone,
+                    hint: 'Enter your phone Number',
+                  ),
                   // Profession
                   _buildTextField(
                     controller: phoneNumberController,
@@ -213,12 +220,13 @@ class _MentorDetailsState extends State<MentorDetails> {
               .collection("users")
               .doc(user.uid)
               .update({
-            "name": fullNameController.text.trim(),
-            "profession": phoneNumberController.text.trim(),
-            "schoolName": schoolNameController.text.trim(),
+            "name": fullNameController.text.trim().toLowerCase(),
+            "profession": phoneNumberController.text.trim().toLowerCase(),
+            "schoolName": schoolNameController.text.trim().toLowerCase(),
             "birthDate": birthDate?.toIso8601String(),
-            "board": selectedBoard,
-            "mentorType": selectedMentorType,
+            "board": selectedBoard.toString().toLowerCase(),
+            "mentorType": selectedMentorType.toString().toLowerCase(),
+            "phoneNumber":phonenum.text,
           });
         }
 
@@ -243,11 +251,14 @@ class _MentorDetailsState extends State<MentorDetails> {
     required String label,
     required IconData icon,
     required String hint,
+    TextInputType? keyboardType,
   }) {
     return TextField(
       controller: controller,
+      keyboardType: keyboardType!,
       decoration: InputDecoration(
         labelText: label,
+
         labelStyle: const TextStyle(color: Colors.white),
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.grey),

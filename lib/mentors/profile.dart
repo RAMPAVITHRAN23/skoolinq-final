@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:skoolinq_project/mentors/mentorProfileEdit.dart';
 import '../Account/checkAuth.dart';
 import '../services/dbservice.dart';
 import '../services/authservice.dart';
@@ -175,7 +176,7 @@ class _ProfileState extends State<Profile> {
                           enabled: isEditingName,
                         ),
                       ),
-                      IconButton(
+                     /* IconButton(
                         icon: Icon(
                           isEditingName ? Icons.check : Icons.edit,
                           color: Colors.blueGrey,
@@ -198,7 +199,7 @@ class _ProfileState extends State<Profile> {
                             }
                           });
                         },
-                      ),
+                      ),*/
                     ],
                   ),
                   SizedBox(height: divHeight * 0.02),
@@ -225,7 +226,7 @@ class _ProfileState extends State<Profile> {
                           enabled: isEditingProfession,
                         ),
                       ),
-                      IconButton(
+                      /*IconButton(
                         icon: Icon(
                           isEditingProfession ? Icons.check : Icons.edit,
                           color: Colors.blueGrey,
@@ -248,7 +249,7 @@ class _ProfileState extends State<Profile> {
                             }
                           });
                         },
-                      ),
+                      ),*/
                     ],
                   ),
 
@@ -265,7 +266,7 @@ class _ProfileState extends State<Profile> {
                           color: Colors.blueGrey,
                         ),
                       ),
-                      IconButton(
+                     /* IconButton(
                         icon: Icon(
                           isEditingBio ? Icons.check : Icons.edit,
                           color: Colors.blue,
@@ -288,7 +289,7 @@ class _ProfileState extends State<Profile> {
                             }
                           });
                         },
-                      ),
+                      ),*/
                     ],
                   ),
                   Container(
@@ -400,7 +401,9 @@ class _ProfileState extends State<Profile> {
                   ),
 
                   SizedBox(height: divHeight * 0.03),
-
+                  ElevatedButton(onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>MentorProfileEdit(uid: user!.uid)));},
+                      child: Text("Edit Profile")),
+                  SizedBox(height: divHeight * 0.03),
                   // Log Out Button
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(

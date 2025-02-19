@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                                             backgroundColor: Color(0xFF0288D1),
                                           ),
                                           SizedBox(height: 5),
-                                          Text(mentors['name'],
+                                          Text("${mentors['name'][0].toString().toUpperCase()+mentors["name"].substring(1).toString()}",
                                               style: TextStyle(
                                                   color: Colors.black)),
                                         ],
@@ -247,6 +247,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
+                              SizedBox(height: 10,),
                               Expanded(
                                 child: ListView.builder(
                                   shrinkWrap: true,
@@ -322,13 +323,13 @@ class _HomePageState extends State<HomePage> {
                   child: Icon(Icons.person, color: Colors.white),
                 ),*/
                 SizedBox(width: 10),
-                Text(username, style: TextStyle(
+                Text("${username}", style: TextStyle(
                     color: Colors.black, fontWeight: FontWeight.bold)),
               ],
             ),
             ),
             SizedBox(height: 12),
-            if (img != null && img.isNotEmpty)
+            if (img != "" && img.isNotEmpty)
               Builder(
                 builder: (context) {
                   try {

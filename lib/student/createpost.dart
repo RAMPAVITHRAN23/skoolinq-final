@@ -22,6 +22,7 @@ class _CreatePostState extends State<CreatePost> {
   TextEditingController post = TextEditingController();
   final formKey = GlobalKey<FormState>();
   File? pickedImage;
+  String base64Image="";
 
   Future<void> pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -136,51 +137,68 @@ class _CreatePostState extends State<CreatePost> {
                     ElevatedButton(
                       onPressed: () async {
                         EasyLoading.show(status: "Posting");
-                        if (pickedImage != null &&
-                            formKey.currentState!.validate()) {
-                          EasyLoading.show(status: "Posting");
-                          String base64Image =
-                          await encodeImageToBase64(pickedImage!);
+                        if (pickedImage != null
+                            ) {
+                                EasyLoading.show(status: "Posting");
+                                  base64Image =
+                                 await encodeImageToBase64(pickedImage!);
+                                  }
 
-                          try {
-                            await FirebaseFirestore.instance.collection("posts").add({
-                              "post": post.text.toString(),
-                              "uid": user!.uid,
-                              "postedBy": data["name"],
-                              "avatar": data["avatar"],
-                              "postImg": base64Image,
-                              "like": 0,
-                              "timestamp": FieldValue.serverTimestamp(),
+if(base64Image!="" || post.text.toString()!="" ) {
+  try {
+    await FirebaseFirestore.instance.collection("posts").add({
+      "post": post.text.toString(),
+      "uid": user!.uid,
+      "postedBy": data["name"],
+      "avatar": data["avatar"],
+      "postImg": base64Image,
+      "like": 0,
+      "timestamp": FieldValue.serverTimestamp(),
 
-                            });
-                            await FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
-                              "posts":data["posts"]!=null ? data["posts"]+1 :1
-                            });
-                            EasyLoading.dismiss();
-                            post.clear();
-                            setState(() {
-                              pickedImage = null;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                duration: Duration(seconds: 3),
-                                backgroundColor: Colors.green,
-                                content: Center(
-                                  child: Text(
-                                    "Post Added Successfully",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 17),
-                                  ),
-                                ),
-                              ),
-                            );
-                          } catch (e) {
-                            EasyLoading.showError("Compress the Image Please");
-                          }
-                        } else {
-                          EasyLoading.showError("Please check the fields");
-                        }
-                      },
+    });
+    await FirebaseFirestore.instance.collection("users").doc(user!.uid).update({
+      "posts": data["posts"] != null ? data["posts"] + 1 : 1
+    });
+    EasyLoading.dismiss();
+    post.clear();
+    setState(() {
+      pickedImage = null;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(seconds: 3),
+        backgroundColor: Colors.green,
+        content: Center(
+          child: Text(
+            "Post Added Successfully",
+            style: TextStyle(
+                color: Colors.white, fontSize: 17),
+          ),
+        ),
+      ),
+    );
+  } catch (e) {
+    EasyLoading.showError("Check your network");
+  }
+}else{
+  EasyLoading.dismiss();
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      duration: Duration(seconds: 3),
+      backgroundColor: Colors.red,
+      content: Center(
+        child: Text(
+          "Please please any of the one fields to post",
+          style: TextStyle(
+              color: Colors.white, fontSize: 17),
+        ),
+      ),
+    ),
+  );
+}
+
+                  },
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueAccent,
                         shape: RoundedRectangleBorder(

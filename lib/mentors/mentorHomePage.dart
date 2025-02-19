@@ -84,10 +84,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          child: Icon(Icons.person, color: Colors.white),
-                        ),
+
                         SizedBox(width: 10),
                         Text(
                           "Hello, ${data['name']}", // Dynamic welcome message with user's name
@@ -268,12 +265,12 @@ class _MentorHomePageState extends State<MentorHomePage> {
                   child: Icon(Icons.person, color: Colors.white),
                 ),*/
                 SizedBox(width: 10),
-                Text(username, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                Text(username[0].toString().toUpperCase()+username.substring(1).toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ],
             ),
             ),
             SizedBox(height: 12),
-            if (img != null && img.isNotEmpty)
+            if (img != "" && img.isNotEmpty)
               Builder(
                 builder: (context) {
                   try {
@@ -288,7 +285,9 @@ class _MentorHomePageState extends State<MentorHomePage> {
                 },
               )
             else
-              SizedBox.shrink(),
+
+                SizedBox.shrink(),
+
             SizedBox(height: 10),
             Text(content, style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),

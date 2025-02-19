@@ -108,4 +108,7 @@ class DBService {
       return uniqueResults;
     });
   }
+  SearchMentors()async{
+    return await firestore.collection("users").where("role",isEqualTo: "mentor").get();
+  }
 }
