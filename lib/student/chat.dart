@@ -96,10 +96,10 @@ class _ChatPageState extends State<ChatPage> {
           ),
           body: StreamBuilder(
             stream: dbService.users(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return Loading();
-              QuerySnapshot querySnapshot = snapshot.data!;
-              List<DocumentSnapshot> documents = querySnapshot.docs;
+            builder: (context, snapshots) {
+              if (!snapshots.hasData) return Loading();
+              QuerySnapshot querySnapshots = snapshots.data;
+              List<DocumentSnapshot> documents = querySnapshots.docs;
 
               return SingleChildScrollView(
                 child: Column(
@@ -128,21 +128,55 @@ class _ChatPageState extends State<ChatPage> {
                       itemCount: documents.length,
                       itemBuilder: (context, index) {
                         Map<String, dynamic> data = documents[index].data() as Map<String, dynamic>;
-
+                        if(data["avatarChoosed"]==false) return SizedBox();
                         if (data["role"] == "admin") return SizedBox();
+                        else if(data["accepted"].contains(user!.uid)) {
+                          return Padding(
+                            padding: EdgeInsets.all(5),
+                              child:Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)
+                                  ),
+                                  child:InkWell(
+                            onTap:(){
+                              List<String> docc = [data["uid"], user.uid];
+                              docc.sort();
+                              String combinedString = docc.join("");
+                              Navigator.push(context,MaterialPageRoute(
+                                builder: (context) =>
+                                    ChatUI(name: data["name"], uid: data["uid"], groupName: combinedString),
+                              ));
+                            },
 
-                        return AnimatedContainer(
+                              child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.blueAccent,
+                                    child: Text(data["name"][0],
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                  title: Text(data["name"],style: TextStyle(
+                                    color: Colors.black
+                                  ),),
+                                trailing:Text("Accepted",style: TextStyle(
+                                    color: Colors.black
+                                ),)
+                              )
+                          )));
+                        }
+                        return SizedBox();
+
+
+                        /*AnimatedContainer(
                           duration: Duration(milliseconds: 500),
-                          child: mentor['requested'].contains(data["uid"])
-                              ? InkWell(
+                          child: InkWell(
                             onTap: () async {
-                              await FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+                             *//* await FirebaseFirestore.instance.collection("users").doc(user.uid).update({
                                 "requested": FieldValue.arrayRemove([data["uid"]]),
                                 "accepted": FieldValue.arrayUnion([data["uid"]]),
                               });
                               await FirebaseFirestore.instance.collection("users").doc(data["uid"]).update({
                                 "accepted": FieldValue.arrayUnion([user.uid])
-                              });
+                              });*//*
                               List<String> docc = [data["uid"], user.uid];
                               docc.sort();
                               String combinedString = docc.join("");
@@ -167,7 +201,7 @@ class _ChatPageState extends State<ChatPage> {
                             child: buildListTile(data, "Accepted", Icons.group),
                           )
                               : SizedBox(),
-                        );
+                        );*/
                       },
                     ),
                   ],

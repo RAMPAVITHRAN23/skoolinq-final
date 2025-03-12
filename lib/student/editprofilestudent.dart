@@ -12,14 +12,22 @@ class EditProfileStudent extends StatefulWidget {
 class _EditProfileStudentState extends State<EditProfileStudent> {
   late TextEditingController name;
   late TextEditingController bio;
+  late TextEditingController phone;
   String? selectedClass; // Stores selected class
   List<String> classList = ["9", "10", "11", "12"];
+  String? selectedBoard;
+
+  String? selectedExam;
+  final List<String> exams = ['JEE', 'NEET', 'CUET'];
+  late TextEditingController schoolName;
 
   @override
   void initState() {
     super.initState();
     name = TextEditingController();
     bio = TextEditingController();
+    schoolName=TextEditingController();
+    phone=TextEditingController();
    // stclass = TextEditingController();
     getDetails();
   }
@@ -39,6 +47,11 @@ class _EditProfileStudentState extends State<EditProfileStudent> {
           name.text = data["name"] ?? "";
           bio.text = data["bio"] ?? "";
           selectedClass = data["class"] ?? "";
+          schoolName.text=data["schoolName"] ?? "";
+          phone.text=data["phone"] ?? "";
+          selectedBoard=data["board"] ?? "";
+          selectedExam=data["selectedExam"] ?? null;
+
         });
       }
     } catch (e) {
@@ -47,11 +60,33 @@ class _EditProfileStudentState extends State<EditProfileStudent> {
   }
    saveProfileToFirebase( ) async{
      try {
-       await FirebaseFirestore.instance.collection("users").doc(widget.uid).update({
-         "name": name.text,
-         "bio": bio.text,
-         "class": selectedClass,
-       });
+       if(selectedExam!=null) {
+         await FirebaseFirestore.instance.collection("users")
+             .doc(widget.uid)
+             .update({
+           "name": name.text,
+           "bio": bio.text,
+           "class": selectedClass,
+           "phone": phone.text,
+           "schoolName": schoolName.text,
+           "board": selectedBoard,
+           "selectedExam":selectedExam!,
+         });
+       }
+       else {
+         await FirebaseFirestore.instance.collection("users")
+             .doc(widget.uid)
+             .update({
+           "name": name.text,
+           "bio": bio.text,
+           "class": selectedClass,
+           "phone": phone.text,
+           "schoolName": schoolName.text,
+           "board": selectedBoard,
+
+         });
+       }
+
 
        ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(content: Text("Profile updated successfully!")),
@@ -59,6 +94,9 @@ class _EditProfileStudentState extends State<EditProfileStudent> {
        Navigator.pop(context);
      } catch (e) {
        print("Error updating profile: $e");
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text(e.toString())),
+       );
      }
   }
   @override
@@ -67,11 +105,13 @@ class _EditProfileStudentState extends State<EditProfileStudent> {
   }
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(title: Text('Edit Profile')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
+
           children: [
 
             SizedBox(height: 20),
@@ -83,6 +123,11 @@ class _EditProfileStudentState extends State<EditProfileStudent> {
             TextFormField(
               controller: bio,
               decoration: InputDecoration(labelText: 'Bio'),
+            ),
+            SizedBox(height: 20),
+            TextFormField(
+              controller: phone,
+              decoration: InputDecoration(labelText: 'Phone number'),
             ),
             SizedBox(height: 20),
             DropdownButtonFormField<String>(
@@ -101,7 +146,26 @@ class _EditProfileStudentState extends State<EditProfileStudent> {
               },
             ),
             SizedBox(height: 20),
+
+            _buildDropdown(),
             SizedBox(height: 20),
+           selectedExam!=null ? _buildDropdownField(
+              label: 'Select Exam',
+              items: exams,
+              value: selectedExam!,
+              onChanged: (value) {
+                setState(() {
+                  selectedExam = value;
+                });
+              },
+            ): SizedBox(),
+            SizedBox(height: 20,),
+            TextFormField(
+              controller: schoolName,
+              decoration: InputDecoration(labelText: 'School Name'),
+            ),
+
+            SizedBox(height: 40),
             ElevatedButton(
               onPressed: ()async{
                await saveProfileToFirebase();
@@ -110,6 +174,64 @@ class _EditProfileStudentState extends State<EditProfileStudent> {
             ),
           ],
         ),
+      ),
+    );
+  }
+  Widget _buildDropdown() {
+    return DropdownButtonFormField<String>(
+
+      value: selectedBoard,
+      items: ['CBSE', 'ICSE', 'STATE BOARD']
+          .map((board) => DropdownMenuItem(
+        value: board,
+        child: Text(board),
+      ))
+          .toList(),
+      onChanged: (value) {
+        setState(() {
+          selectedBoard = value;
+        });
+      },
+      decoration: InputDecoration(
+        labelText: "Select Board",
+      ),
+      validator: (value) {
+        if (value == null) {
+          return 'Please select your board of education.';
+        }
+        return null;
+      },
+    );
+  }
+  Widget _buildDropdownField({
+    required String label,
+    required List<String> items,
+    required String? value,
+    required void Function(String?) onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        onChanged: onChanged,
+        items: items.map((item) {
+          return DropdownMenuItem(
+            value: item,
+            child: Text(item, style: const TextStyle(color: Colors.black)),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.black),
+
+        ),
+        style: const TextStyle(color: Colors.black),
+        validator: (value) {
+          if (value == null) {
+            return 'Please select an option';
+          }
+          return null;
+        },
       ),
     );
   }

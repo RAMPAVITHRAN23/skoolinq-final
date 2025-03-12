@@ -124,7 +124,7 @@ class _MentorProfileEditState extends State<MentorProfileEdit> {
               children: [
                 _buildTextField(name, 'Name', Icons.person),
                 _buildTextField(phonenum, 'Phone Number', Icons.phone, keyboardType: TextInputType.number),
-                _buildTextField(bio, 'Bio', Icons.info),
+                _buildTextField(bio, 'Enter your bio', Icons.info),
                 const SizedBox(height: 10),
 
                 // Class Selection Grid

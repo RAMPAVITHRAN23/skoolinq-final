@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:skoolinq_project/Account/checkAuth.dart';
@@ -209,14 +209,6 @@ class _SignupPageState extends State<SignupPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 20),
-                              // "Or" Text
-                              Text(
-                                'Or',
-                                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-                              ),
-                              SizedBox(height: 20),
-                              // Google Sign-In Button with Icon
                               ElevatedButton.icon(
                                 onPressed: () async {
                                   User? user = await _googleSignInMethod();
@@ -233,7 +225,7 @@ class _SignupPageState extends State<SignupPage> {
                                   }
                                 },
                                 icon: Image.asset('assets/google.png', width: 24, height: 24),
-                                label: Text('Sign In with Google'),
+                                label: Text('Sign Up with Google'),
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                                   shape: RoundedRectangleBorder(

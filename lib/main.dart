@@ -20,6 +20,9 @@ class MyApp extends StatelessWidget {
     return  StreamProvider<User?>.value(
         value: AuthService().UserStream,
         initialData: null,
-        child: MaterialApp(builder: EasyLoading.init(), home: AnimationScreen()));
+
+        child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            builder: EasyLoading.init(), home: AnimationScreen()));
   }
 }

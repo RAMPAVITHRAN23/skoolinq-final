@@ -166,18 +166,18 @@ class _MentorHomePageState extends State<MentorHomePage> {
                           controller: _scrollController,
                           itemCount: documentSnapshot.length,
                           itemBuilder: (context, index) {
-                            Map<String, dynamic> data =
+                            Map<String, dynamic> datas =
                             documentSnapshot[index].data() as Map<String, dynamic>;
                             if (selectedFilterIndex == 0 ||
-                                (selectedFilterIndex == 1 && user.uid == data["uid"]) ||
-                                (selectedFilterIndex == 2 && user.uid != data["uid"])) {
+                                (selectedFilterIndex == 1 && user.uid == datas["uid"]) ||
+                                (selectedFilterIndex == 2 && user.uid != datas["uid"])) {
                               return PostCard(
                                 docId: documentSnapshot[index].id,
-                                username: data['postedBy'],
-                                content: data["post"],
-                                postedBy:data['uid'],
-                                img: data["postImg"], likes: data["likes"]!=null ? data["likes"]:[], uid: user!.uid,
-                                np:data["posts"]?? 0
+                                username: datas['postedBy'],
+                                content: datas["post"],
+                                postedBy:datas['uid'],
+                                img: datas["postImg"], likes: datas["likes"]!=null ? datas["likes"]:[], uid: user!.uid,
+                                np:data["posts"]!=null ? data["posts"] : 0
                               );
                             } else {
                               return SizedBox();
@@ -296,7 +296,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
               children: [
                 Row(children: [
                   Text(likes.length==0? "":likes.length.toString()),
-                  SizedBox(width: 3,),IconButton(
+                  SizedBox(width: 3,),/*IconButton(
                     onPressed: ()async{
                       if(liked){
                         likes.remove(uid);
@@ -311,7 +311,7 @@ class _MentorHomePageState extends State<MentorHomePage> {
                         });
                       }
                     },
-                    icon:Icon(Icons.thumb_up), color: liked ? Colors.red :Colors.black),
+                    icon:Icon(Icons.thumb_up), color: liked ? Colors.red :Colors.black),*/
                 ]
                 ),
                 postedBy==uid ? IconButton(

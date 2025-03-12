@@ -181,7 +181,7 @@ class _Class910State extends State<Class910> {
                         '${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}',
                         "phone": phoneNumberController.text.trim().toString(),
                         "schoolName": schoolNameController.text.trim().toString(),
-                        "board": selectedBoard.toString().toLowerCase(),
+                        "board": selectedBoard.toString(),
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

@@ -172,10 +172,10 @@ class _View_profileState extends State<View_profile> {
                         // Mentor Request Button
                         if (mydata["role"] == "student" && data["role"] == "mentor")
                           Center(
-                            child: data["requested"].contains(mydata["uid"])
-                                ? RequestButton(text: "Requested", color: Colors.grey)
-                                : mydata["accepted"].contains(data["uid"])
+                            child: data["accepted"].contains(mydata["uid"])
                                 ? RequestButton(text: "Connected", color: Colors.green)
+                                : data["requested"].contains(mydata["uid"])
+                                ? RequestButton(text: "Requested", color: Colors.grey)
                                 : RequestButton(
                               text: "Request Mentor",
                               color: Colors.blue,
@@ -194,6 +194,15 @@ class _View_profileState extends State<View_profile> {
                                                 .instance
                                                 .collection("users")
                                                 .doc(data["uid"])
+                                                .update({
+                                              "requested":
+                                              FieldValue.arrayUnion(
+                                                  [user.uid])
+                                            });
+                                            await FirebaseFirestore
+                                                .instance
+                                                .collection("users")
+                                                .doc(mydata["uid"])
                                                 .update({
                                               "requested":
                                               FieldValue.arrayUnion(

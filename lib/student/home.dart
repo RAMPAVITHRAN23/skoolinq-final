@@ -136,7 +136,8 @@ class _HomePageState extends State<HomePage> {
                                     child: InkWell(
                                       onTap: () {
                                         print( mentors["requested"].contains(user!.uid));
-                                        mentors["requested"].contains(user!.uid) ? Navigator.push(context, MaterialPageRoute(builder: (context)=>View_profile(uid: mentors["uid"]))) :  showDialog(
+                                        mentors["requested"].contains(user!.uid) ? Navigator.push(context, MaterialPageRoute(builder: (context)=>View_profile(uid: mentors["uid"]))) :
+                                        showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
                                             return  AlertDialog(
@@ -254,20 +255,20 @@ class _HomePageState extends State<HomePage> {
                                   itemCount: documentSnapshot.length,
                                   itemBuilder: (context, index) {
                                     Map<String,
-                                        dynamic> data = documentSnapshot[index]
+                                        dynamic> datas = documentSnapshot[index]
                                         .data() as Map<String, dynamic>;
                                     if (selectedFilterIndex == 1 &&
-                                        user.uid != data["uid"])
+                                        user.uid != datas["uid"])
                                       return SizedBox();
                                     if (selectedFilterIndex == 2 &&
-                                        user.uid == data["uid"])
+                                        user.uid == datas["uid"])
                                       return SizedBox();
                                     return PostCard(
                                       docId: documentSnapshot[index].id,
-                                      username: data['postedBy'],
-                                      content: data["post"],
-                                      postedBy:data['uid'],
-                                      img: data["postImg"], likes: data["likes"]!=null ? data["likes"]:[], uid: user!.uid,np:data["posts"] ?? 0
+                                      username: datas['postedBy'],
+                                      content: datas["post"],
+                                      postedBy:datas['uid'],
+                                      img: datas["postImg"], likes: datas["likes"]!=null ? datas["likes"]:[], uid: user!.uid,np:data["posts"]!=null ? data["posts"]: 0
                                     );
                                   },
                                 ),
@@ -353,7 +354,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Row(children: [
                   Text(likes.length == 0 ? "" : likes.length.toString()),
-                  SizedBox(width: 3,), IconButton(
+                  SizedBox(width: 3,),/* IconButton(
                       onPressed: () async {
                         if (liked) {
                           likes.remove(uid);
@@ -373,11 +374,13 @@ class _HomePageState extends State<HomePage> {
                         }
                       },
                       icon: Icon(Icons.thumb_up),
-                      color: liked ? Colors.red : Colors.black),
+                      color: liked ? Colors.red : Colors.black),*/
                 ]
                 ),
                 postedBy == uid ? IconButton(
                     onPressed: () async {
+                      print('Hiiiiiiiiiiiiiiiiiiii');
+                      print(np);
                       await FirebaseFirestore.instance.collection("posts").doc(
                           docId).delete();
                       await FirebaseFirestore.instance.collection("users").doc(postedBy).update({

@@ -88,6 +88,7 @@ class _MentorDetailsState extends State<MentorDetails> {
                     hint: 'Enter your phone Number',
                   ),
                   // Profession
+                  SizedBox(height: screenHeight * 0.02),
                   _buildTextField(
                     controller: phoneNumberController,
                     label: 'Profession',
@@ -221,11 +222,11 @@ class _MentorDetailsState extends State<MentorDetails> {
               .doc(user.uid)
               .update({
             "name": fullNameController.text.trim().toLowerCase(),
-            "profession": phoneNumberController.text.trim().toLowerCase(),
-            "schoolName": schoolNameController.text.trim().toLowerCase(),
+            "profession": phoneNumberController.text.trim(),
+            "schoolName": schoolNameController.text.trim(),
             "birthDate": birthDate?.toIso8601String(),
-            "board": selectedBoard.toString().toLowerCase(),
-            "mentorType": selectedMentorType.toString().toLowerCase(),
+            "board": selectedBoard.toString(),
+            "mentorType": selectedMentorType.toString(),
             "phoneNumber":phonenum.text,
           });
         }
@@ -255,7 +256,7 @@ class _MentorDetailsState extends State<MentorDetails> {
   }) {
     return TextField(
       controller: controller,
-      keyboardType: keyboardType!,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
 

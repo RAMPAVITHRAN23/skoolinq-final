@@ -174,7 +174,7 @@ class _Class1112PageState extends State<Class1112Page> {
                               ? '${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}'
                               : 'Not provided', // Handle empty date case
                           "phone": phoneNumberController.text,
-                          "schoolName": schoolNameController.text.toLowerCase(),
+                          "schoolName": schoolNameController.text,
                           "board": selectedBoard!,
                           "selectedExam": selectedExam!,
                         });

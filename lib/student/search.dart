@@ -27,14 +27,17 @@ class _SearchState extends State<Search> {
   DBService dbService = DBService();
   bool isSearching = false;
   String searchType = "mentorName";
-  List searchedResult = [];
+  List searchedResult=[] ;
 
   Future searchResults() async {
+    searchedResult=[];
     QuerySnapshot querySnapshot = await dbService.SearchMentors();
     for (var doc in querySnapshot.docs) {
       searchedResult.add(doc.data());
     }
-    setState(() {});
+    setState(() {
+      isSearching=true;
+    });
   }
 
   @override
@@ -63,7 +66,7 @@ class _SearchState extends State<Search> {
               title: Text('Search Mentors'),
               centerTitle: true,
             ),
-            body: searchedResult.isNotEmpty
+            body: isSearching
                 ? SingleChildScrollView(
                     child: Padding(
                         padding: EdgeInsets.all(15),
@@ -143,11 +146,11 @@ class _SearchState extends State<Search> {
                                             .toString()
                                             .toLowerCase()
                                             .contains(MentorName.toLowerCase());
-                                        bool acpRreq=data["requested"].contains(mentorsData["uid"]);
+
                                         return mentN
                                             ? _buildMentorCard(
                                                 searchedResult[index],
-                                                user!.uid,acpRreq)
+                                                user!.uid,data)
                                             : SizedBox();
                                       },
                                       itemCount: searchedResult.length,
@@ -188,7 +191,7 @@ class _SearchState extends State<Search> {
                                             return mentN
                                                 ? _buildMentorCard(
                                                     searchedResult[index],
-                                                    user!.uid,acpRreq)
+                                                    user!.uid,data)
                                                 : SizedBox();
                                           },
                                           itemCount: searchedResult.length,
@@ -217,11 +220,11 @@ class _SearchState extends State<Search> {
                                             bool mentN =
                                                 mentorsData["mentorType"] ==
                                                     (selectedMentorType);
-                                            bool acpRreq=data["requested"].contains(mentorsData["uid"]);
+
                                             return mentN
                                                 ? _buildMentorCard(
                                                     searchedResult[index],
-                                                    user!.uid,acpRreq)
+                                                    user!.uid,data)
                                                 : SizedBox();
                                           },
                                           itemCount: searchedResult.length,
@@ -269,7 +272,7 @@ class _SearchState extends State<Search> {
     );
   }
 
-  Widget _buildMentorCard(Map mentorData, uid,RrA) {
+  Widget _buildMentorCard(Map mentorData, uid,stdata) {
     // print(mentorData["name"]+mentorData["requested"].contains(uid).toString());
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -285,17 +288,22 @@ class _SearchState extends State<Search> {
           ],
         ),
         child: ListTile(
-            leading: CircleAvatar(
+            leading: InkWell(
+                onTap:(){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> View_profile(uid: mentorData["uid"])));
+                },
+                child:CircleAvatar(
               backgroundColor: Colors.blueAccent,
               child: Text(mentorData["name"][0],
                   style: TextStyle(color: Colors.white)),
-            ),
+            )),
             title: Text(mentorData['name'],
                 style: TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text(mentorData['profession'] ?? "Student"),
-            trailing: RrA
-                ? Text("Requested")
-                : ElevatedButton(
+            trailing: stdata["accepted"].contains(mentorData["uid"]) ? Text("Already Accepted") :
+            stdata["requested"].contains(mentorData["uid"]) ? Text("Requested") :
+
+                 ElevatedButton(
                     onPressed: () async {
                       showDialog(
                         context: context,

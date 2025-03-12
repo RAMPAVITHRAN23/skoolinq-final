@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:skoolinq_project/Account/checkAuth.dart';
 import 'package:skoolinq_project/Account/Signup.dart';
+import 'package:skoolinq_project/Account/forgotPassword.dart';
 
 class Signin extends StatefulWidget {
   const Signin({super.key});
@@ -16,6 +18,29 @@ class _SigninState extends State<Signin> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;  // For password visibility toggle
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  Future<User?> _googleSignInMethod() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        return null; // User canceled the sign-in
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credentials
+      final UserCredential userCredential =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return userCredential.user;
+    } catch (e) {
+      print("Google Sign-In Error: $e");
+      return null;
+    }
+  }
 
   Future<void> _signup() async {
     if (_formKey.currentState!.validate()) {
@@ -152,12 +177,47 @@ class _SigninState extends State<Signin> {
                             },
                           ),
                           SizedBox(height: 20),
+                         Row(children: [
+                           Spacer(),
+                           TextButton(onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>ForgotPasswordScreen()));
+                          }, child: Text("Forgot Password")),
+                          ]
+                           ),
+                          SizedBox(height: 20,),
                           _isLoading
                               ? CircularProgressIndicator()
                               : ElevatedButton.icon(
                             onPressed: _signup,
                             icon: Icon(Icons.login),
                             label: Text('Sign In'),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20,),
+                          Text("Or"),
+                          SizedBox(height: 20,),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              User? user = await _googleSignInMethod();
+                              if (user != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Welcome ${user.email}!')),
+                                );
+                                Navigator.pushReplacement(
+                                    context, MaterialPageRoute(builder: (context) => CheckAuth()));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Google Sign-In failed')),
+                                );
+                              }
+                            },
+                            icon: Image.asset('assets/google.png', width: 24, height: 24),
+                            label: Text('Sign In with Google'),
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                               shape: RoundedRectangleBorder(

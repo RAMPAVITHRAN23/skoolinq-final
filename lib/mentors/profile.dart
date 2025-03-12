@@ -304,7 +304,7 @@ class _ProfileState extends State<Profile> {
                       enabled: isEditingBio,
                       maxLength: 150,
                       decoration: const InputDecoration(
-                        hintText: "Enter your bio",
+                        hintText: "Enter your bio in edit profile",
                         border: InputBorder.none,
                       ),
                       style: const TextStyle(color: Colors.blueGrey),
@@ -370,6 +370,11 @@ class _ProfileState extends State<Profile> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+
+                        SizedBox(height: divHeight * 0.02),
+
+                          Text(data["mentorType"]),
+                        SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.people_alt_outlined,
                           label: "Followers",

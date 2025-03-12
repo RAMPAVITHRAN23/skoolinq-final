@@ -189,6 +189,12 @@ class _Student_ProfileState extends State<Student_Profile>
                           label: "Email",
                           value: user.email ?? "Not available",
                         ),
+                        SizedBox(height: divHeight * 0.02),
+                        InfoRow(
+                          icon: Icons.email_outlined,
+                          label: "School Name",
+                          value: data["schoolName"] ?? "Not available",
+                        ),
                        /* SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.location_on_outlined,
@@ -201,6 +207,18 @@ class _Student_ProfileState extends State<Student_Profile>
                           label: "Class",
                           value: data["class"].toString(),
                         ),
+                        SizedBox(height: divHeight * 0.02),
+                        InfoRow(
+                          icon: Icons.post_add_outlined,
+                          label: "Board",
+                          value: data["board"].toString(),
+                        ),
+                        SizedBox(height: divHeight * 0.02),
+                        data["selectedExam"]!=null ?InfoRow(
+                          icon: Icons.post_add_outlined,
+                          label: "Selected Exam",
+                          value: data["selectedExam"].toString(),
+                        ):SizedBox(),
                         SizedBox(height: divHeight * 0.02),
                         InfoRow(
                           icon: Icons.post_add_outlined,
